@@ -2,7 +2,7 @@ import { defineConfig } from 'vite';
 import { resolve } from 'path';
 
 export default defineConfig({
-    base: '/' + process.env.npm_package_name + '/', // Use repo name for base path
+    base: '/codeUnity/',
     root: 'src',
     build: {
         outDir: '../dist',
