@@ -40,12 +40,14 @@ jobs:
         run: chmod +x ./node_modules/.bin/vite
       - name: Build
         run: npm run build
+      - name: Move index.html to root
+        run: mv ./dist/test/index.html ./dist/index.html
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          # Upload content from the dist/test directory
+          # Upload the entire dist directory
           path: './dist'
       - name: Deploy to GitHub Pages
         id: deployment
