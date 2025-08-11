@@ -7,11 +7,7 @@ export default defineConfig({
     build: {
         outDir: '../dist',
         rollupOptions: {
-            input: {
-                main: resolve(__dirname, 'src/test/index.html'),
-                // main: resolve(__dirname, 'src/day2/index.html'),
-
-            },
+            input: resolve(__dirname, 'src/test/index.html'),
         },
     },
     server: {
