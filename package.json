@@ -1,0 +1,16 @@
+{
+  "dependencies": {
+    "gl-matrix": "^3.4.3",
+    "gsap": "^3.13.0",
+    "http-server": "^14.1.1",
+    "lil-gui": "^0.20.0",
+    "playwright": "^1.54.2",
+    "three": "^0.178.0"
+  },
+  "scripts": {
+    "dev": "vite"
+  },
+  "devDependencies": {
+    "vite": "^6.3.5"
+  }
+}
