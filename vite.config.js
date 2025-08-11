@@ -2,7 +2,7 @@ import { defineConfig } from 'vite';
 import { resolve } from 'path';
 
 export default defineConfig({
-    base: './', // Use relative paths for assets
+    base: '/' + process.env.npm_package_name + '/', // Use repo name for base path
     root: 'src',
     build: {
         outDir: '../dist',
