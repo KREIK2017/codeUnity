@@ -6,6 +6,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import modelUrl from '../TEST2-optimized.glb';
 import { setupModelCameraGUI } from './GUI.js';
 import { createFallingCubeScene } from './FallingCube.js';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -40,6 +41,20 @@ renderer.setPixelRatio(window.devicePixelRatio);
 renderer.shadowMap.enabled = true; // Enable shadows
 document.body.appendChild(renderer.domElement);
 
+// --- Controls ---
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true; // Enable damping (inertia)
+controls.dampingFactor = 0.05; // Damping factor
+controls.target.copy(cubeWorldPosition); // Set initial target to the cube's position
+
+let isUserInteracting = false;
+controls.addEventListener('start', () => {
+    isUserInteracting = true;
+});
+controls.addEventListener('end', () => {
+    isUserInteracting = false;
+});
 
 // --- Lighting ---
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
@@ -57,14 +72,14 @@ scene.add(directionalLight);
 // --- Load Model ---
 const loader = new GLTFLoader();
 const dracoLoader = new DRACOLoader();
-dracoLoader.setDecoderPath( './libs/draco/gltf/' );
-loader.setDRACOLoader( dracoLoader );
+dracoLoader.setDecoderPath('./libs/draco/gltf/');
+loader.setDRACOLoader(dracoLoader);
 loader.load(modelUrl, function (gltf) {
-        const model = gltf.scene;
+    const model = gltf.scene;
     window.model = model; // Expose for testing
 
     // --- Налаштування моделі (поворот, масштаб, позиція) ---
-    model.rotation.y = 2; 
+    model.rotation.y = 2;
 
     // Traverse the model to enable shadows
     model.traverse(function (node) {
@@ -126,13 +141,17 @@ function animate() {
     requestAnimationFrame(animate);
 
     // Плавне слідування камери за кубом
+    if (!isUserInteracting) {
     const cubeWorldPosition = new THREE.Vector3();
     fallingCube.getWorldPosition(cubeWorldPosition);
-    
+
     const targetCameraPosition = cubeWorldPosition.clone().add(cameraOffset);
     camera.position.lerp(targetCameraPosition, CONFIG.CAMERA_FOLLOW_SPEED);
     
-    camera.lookAt(cubeWorldPosition);
+    controls.target.lerp(cubeWorldPosition, CONFIG.CAMERA_FOLLOW_SPEED);
+    }
+    // camera.lookAt(cubeWorldPosition);
+    controls.update();
     renderer.render(scene, camera);
 }
 
