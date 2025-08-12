@@ -72,7 +72,7 @@ scene.add(directionalLight);
 // --- Load Model ---
 const loader = new GLTFLoader();
 const dracoLoader = new DRACOLoader();
-dracoLoader.setDecoderPath('./libs/draco/gltf/');
+dracoLoader.setDecoderPath('/libs/draco/gltf/');
 loader.setDRACOLoader(dracoLoader);
 loader.load(modelUrl, function (gltf) {
     const model = gltf.scene;
