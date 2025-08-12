@@ -2,6 +2,7 @@ import GUI from 'lil-gui';
 
 export function setupModelCameraGUI(model, camera) {
     const gui = new GUI();
+    gui.close();
 
     // --- Model Controls ---
     const modelFolder = gui.addFolder('Model');

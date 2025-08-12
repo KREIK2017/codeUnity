@@ -46,6 +46,8 @@ document.body.appendChild(renderer.domElement);
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true; // Enable damping (inertia)
 controls.dampingFactor = 0.05; // Damping factor
+controls.minDistance = 5;
+controls.maxDistance = 100;
 controls.target.copy(cubeWorldPosition); // Set initial target to the cube's position
 
 let isUserInteracting = false;
