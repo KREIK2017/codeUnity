@@ -39,6 +39,7 @@ const renderer = new THREE.WebGLRenderer({ antialias: !isMobile });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(window.devicePixelRatio);
 renderer.shadowMap.enabled = true; // Enable shadows
+renderer.domElement.style.zIndex = -1; // Set initial z-index for scrolling
 document.body.appendChild(renderer.domElement);
 
 // --- Controls ---
@@ -143,14 +144,16 @@ const controlsCheckbox = document.getElementById('controls-checkbox');
 controlsCheckbox.addEventListener('change', () => {
     if (controlsCheckbox.checked) {
         // Вмикаємо "Режим контролера"
-        st.disable(); // Вимикаємо анімацію від прокрутки
+        st.disable();
         controls.enabled = true;
-        controls.enableZoom = true; // Вмикаємо зум для контролера
+        controls.enableZoom = true;
+        renderer.domElement.style.zIndex = 1; // Move canvas to the front
     } else {
         // Вмикаємо "Режим прокрутки"
-        st.enable(); // Вмикаємо анімацію від прокрутки
+        st.enable();
         controls.enabled = false;
-        controls.enableZoom = false; // Вимикаємо зум
+        controls.enableZoom = false;
+        renderer.domElement.style.zIndex = -1; // Move canvas to the back
     }
 });
 
