@@ -42,22 +42,16 @@ renderer.shadowMap.enabled = true; // Enable shadows
 document.body.appendChild(renderer.domElement);
 
 // --- Controls ---
-
 const controls = new OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true; // Enable damping (inertia)
-controls.dampingFactor = 0.05; // Damping factor
-controls.enableZoom = false;
+controls.enableDamping = true;
+controls.dampingFactor = 0.05;
 controls.minDistance = 5;
 controls.maxDistance = 100;
-controls.target.copy(cubeWorldPosition); // Set initial target to the cube's position
+controls.target.copy(cubeWorldPosition);
 
-let isUserInteracting = false;
-controls.addEventListener('start', () => {
-    isUserInteracting = true;
-});
-controls.addEventListener('end', () => {
-    isUserInteracting = false;
-});
+// Вимикаємо контролери та зум за замовчуванням
+controls.enabled = false;
+controls.enableZoom = false;
 
 // --- Lighting ---
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
@@ -102,12 +96,7 @@ loader.load(modelUrl, function (gltf) {
 
 // --- GSAP Animation Setup ---
 const tl = gsap.timeline({
-    scrollTrigger: {
-        trigger: document.body,
-        start: "top top",
-        end: "bottom bottom",
-        scrub: 1,
-    }
+    paused: true
 });
 
 // --- Анімація куба в кілька етапів ---
@@ -139,21 +128,49 @@ tl.to(fallingCube.rotation, {
     ease: "power1.inOut"
 }, "<");
 
+// Створюємо ScrollTrigger окремо, щоб ним можна було керувати
+const st = ScrollTrigger.create({
+    animation: tl,
+    trigger: document.body,
+    start: "top top",
+    end: "bottom bottom",
+    scrub: 1,
+});
+
+// --- Toggle Logic ---
+const controlsCheckbox = document.getElementById('controls-checkbox');
+
+controlsCheckbox.addEventListener('change', () => {
+    if (controlsCheckbox.checked) {
+        // Вмикаємо "Режим контролера"
+        st.disable(); // Вимикаємо анімацію від прокрутки
+        controls.enabled = true;
+        controls.enableZoom = true; // Вмикаємо зум для контролера
+    } else {
+        // Вмикаємо "Режим прокрутки"
+        st.enable(); // Вмикаємо анімацію від прокрутки
+        controls.enabled = false;
+        controls.enableZoom = false; // Вимикаємо зум
+    }
+});
+
 // --- Animation Loop ---
 function animate() {
     requestAnimationFrame(animate);
 
-    // Плавне слідування камери за кубом
-    if (!isUserInteracting) {
-    const cubeWorldPosition = new THREE.Vector3();
-    fallingCube.getWorldPosition(cubeWorldPosition);
-
-    const targetCameraPosition = cubeWorldPosition.clone().add(cameraOffset);
-    camera.position.lerp(targetCameraPosition, CONFIG.CAMERA_FOLLOW_SPEED);
-    
-    controls.target.lerp(cubeWorldPosition, CONFIG.CAMERA_FOLLOW_SPEED);
+    // Якщо ScrollTrigger активний (тобто, не вимкнений), камера слідує за анімацією
+    if (st.isActive) {
+        const cubeWorldPosition = new THREE.Vector3();
+        fallingCube.getWorldPosition(cubeWorldPosition);
+        
+        const targetCameraPosition = cubeWorldPosition.clone().add(cameraOffset);
+        camera.position.lerp(targetCameraPosition, CONFIG.CAMERA_FOLLOW_SPEED);
+        
+        // Оновлюємо ціль контролерів, навіть якщо вони вимкнені, щоб камера не "стрибала" при перемиканні
+        controls.target.lerp(cubeWorldPosition, CONFIG.CAMERA_FOLLOW_SPEED);
     }
-    // camera.lookAt(cubeWorldPosition);
+    
+    // Завжди оновлюємо контролери (вони нічого не роблять, якщо вимкнені)
     controls.update();
     renderer.render(scene, camera);
 }
