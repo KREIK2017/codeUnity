@@ -12,6 +12,7 @@
     "build": "npx vite build"
   },
   "devDependencies": {
+    "@playwright/test": "^1.54.2",
     "vite": "^6.3.5"
   }
 }

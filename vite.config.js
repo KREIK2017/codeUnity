@@ -1,8 +1,10 @@
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
 
-export default defineConfig({
-    base: '/codeUnity/',
+// https://vitejs.dev/config/
+export default defineConfig(({ command }) => {
+  return {
+    base: command === 'serve' ? '/' : '/codeUnity/',
     root: 'src',
     build: {
         outDir: '../dist',
@@ -17,4 +19,5 @@ export default defineConfig({
 
     },
     assetsInclude: ['**/*.glb']
+  };
 });
