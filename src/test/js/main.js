@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import WebGL from 'three/examples/jsm/capabilities/WebGL.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
 import gsap from 'gsap';
@@ -35,7 +36,19 @@ camera.lookAt(cubeWorldPosition);
 
 // --- Renderer Setup ---
 const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-const renderer = new THREE.WebGLRenderer({ antialias: !isMobile });
+let renderer;
+if (WebGL.isWebGL2Available()) {
+    renderer = new THREE.WebGLRenderer({ antialias: !isMobile });
+} else {
+    try {
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('webgl');
+        renderer = new THREE.WebGLRenderer({ canvas: canvas, context: context, antialias: !isMobile });
+    } catch (e) {
+        document.body.appendChild(WebGL.getWebGLErrorMessage());
+        throw e;
+    }
+}
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(window.devicePixelRatio);
 renderer.shadowMap.enabled = true; // Enable shadows
