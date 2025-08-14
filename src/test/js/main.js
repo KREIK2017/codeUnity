@@ -45,7 +45,19 @@ if (WebGL.isWebGL2Available()) {
         const context = canvas.getContext('webgl');
         renderer = new THREE.WebGLRenderer({ canvas: canvas, context: context, antialias: !isMobile });
     } catch (e) {
-        document.body.appendChild(WebGL.getWebGLErrorMessage());
+        const warning = document.createElement('div');
+        warning.id = 'webglmessage';
+        warning.style.fontFamily = 'monospace';
+        warning.style.fontSize = '13px';
+        warning.style.fontWeight = 'normal';
+        warning.style.textAlign = 'center';
+        warning.style.background = '#fff';
+        warning.style.color = '#000';
+        warning.style.padding = '1.5em';
+        warning.style.width = '400px';
+        warning.style.margin = '5em auto 0';
+        warning.innerHTML = 'Your browser does not seem to support <a href="http://khronos.org/webgl/wiki/Getting_a_WebGL_Implementation" style="color:#000">WebGL</a>';
+        document.body.appendChild(warning);
         throw e;
     }
 }
