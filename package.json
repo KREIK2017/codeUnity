@@ -9,10 +9,14 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "npx vite build"
+    "build": "npx vite build",
+    "test:cucumber": "cucumber-js --require features/step_definitions/steps.js --require features/support/world.js --format json:test-cases/cucumber_report.json",
+    "posttest:cucumber": "node features/reports/reporter.js"
   },
   "devDependencies": {
+    "@cucumber/cucumber": "^12.1.0",
     "@playwright/test": "^1.54.2",
+    "cucumber-html-reporter": "^7.2.0",
     "vite": "^6.3.5"
   }
 }
