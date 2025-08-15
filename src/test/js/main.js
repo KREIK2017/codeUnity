@@ -63,7 +63,7 @@ if (WebGL.isWebGL2Available()) {
 }
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(window.devicePixelRatio);
-renderer.shadowMap.enabled = true; // Enable shadows
+renderer.shadowMap.enabled = false; // Enable shadows
 renderer.domElement.style.zIndex = -1; // Set initial z-index for scrolling
 document.body.appendChild(renderer.domElement);
 
