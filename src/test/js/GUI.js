@@ -1,3 +1,4 @@
+/*
 import GUI from 'lil-gui';
 
 export function setupModelCameraGUI(model, camera) {
@@ -50,3 +51,4 @@ export function setupModelCameraGUI(model, camera) {
 
     cameraFolder.open();
 }
+*/
