@@ -5,7 +5,7 @@
     "http-server": "^14.1.1",
     "lil-gui": "^0.20.0",
     "playwright": "^1.54.2",
-    "three": "^0.178.0"
+    "three": "^0.150.0"
   },
   "scripts": {
     "dev": "vite",

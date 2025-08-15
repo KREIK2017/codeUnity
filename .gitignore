@@ -24,3 +24,6 @@ yarn-error.log*
 
 /test-cases
 /features
+
+browserstack_devices.csv
+browserstack_devices.xlsx
