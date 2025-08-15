@@ -111,7 +111,7 @@ loader.load(modelUrl, function (gltf) {
             node.receiveShadow = true;
         }
     });
-    // scene.add(model); // Temporarily disabled for debugging
+    scene.add(model);
 
     // --- GUI Setup ---
     // setupModelCameraGUI(model, camera);
