@@ -1,3 +1,4 @@
+window.scrollTo(0, 0);
 import * as THREE from 'three';
 import WebGL from 'three/examples/jsm/capabilities/WebGL.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
