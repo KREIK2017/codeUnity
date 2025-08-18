@@ -163,6 +163,7 @@ const st = ScrollTrigger.create({
     start: "top top",
     end: "bottom bottom",
     scrub: true,
+    fastScrollEnd: true,
 });
 
 // --- Toggle Logic ---
