@@ -127,34 +127,37 @@ const tl = gsap.timeline({
     paused: true
 });
 
-// --- Анімація куба в кілька етапів ---
+// --- Анімація куба, камери та цілі контролів ---
+// Тепер GSAP керує всіма об'єктами, забезпечуючи ідеальну синхронізацію.
 
 // ЕТАП 1: Ковзання до краю платформи
-tl.to(fallingCube.position, {
+tl.to([fallingCube.position, camera.position, controls.target], {
     x: `+=${CONFIG.CUBE_SLIDE_DISTANCE}`,
     ease: "power1.in",
     duration: CONFIG.CUBE_SLIDE_DURATION
 });
 
 // ЕТАП 2: Падіння з краю (починається після ковзання)
+
 // Горизонтальний рух під час падіння
-tl.to(fallingCube.position, {
+tl.to([fallingCube.position, camera.position, controls.target], {
     x: `+=${CONFIG.CUBE_FALL_X_OFFSET}`,
     ease: "none"
 }, ">");
 
 // Вертикальний рух під час падіння (починається одночасно з горизонтальним)
-tl.to(fallingCube.position, {
+tl.to([fallingCube.position, camera.position, controls.target], {
     y: `-=${CONFIG.CUBE_FALL_DISTANCE}`,
     ease: "power1.in"
 }, "<");
 
-// Обертання починається ТІЛЬКИ коли починається падіння
+// Обертання куба починається ТІЛЬКИ коли починається падіння
 tl.to(fallingCube.rotation, {
     x: CONFIG.CUBE_ROTATION_X,
     z: CONFIG.CUBE_ROTATION_Z,
     ease: "power1.inOut"
 }, "<");
+
 
 // Створюємо ScrollTrigger окремо, щоб ним можна було керувати
 const st = ScrollTrigger.create({
@@ -189,19 +192,8 @@ controlsCheckbox.addEventListener('change', () => {
 function animate() {
     requestAnimationFrame(animate);
 
-    // Якщо ScrollTrigger активний (тобто, не вимкнений), камера слідує за анімацією
-    if (st.isActive) {
-        const cubeWorldPosition = new THREE.Vector3();
-        fallingCube.getWorldPosition(cubeWorldPosition);
-        
-        const targetCameraPosition = cubeWorldPosition.clone().add(cameraOffset);
-        camera.position.lerp(targetCameraPosition, CONFIG.CAMERA_FOLLOW_SPEED);
-        
-        // Оновлюємо ціль контролерів, навіть якщо вони вимкнені, щоб камера не "стрибала" при перемиканні
-        controls.target.lerp(cubeWorldPosition, CONFIG.CAMERA_FOLLOW_SPEED);
-    }
-    
-    // Завжди оновлюємо контролери (вони нічого не роблять, якщо вимкнені)
+    // GSAP тепер повністю керує камерою під час скролу.
+    // Ми просто оновлюємо контролери та рендеримо сцену.
     controls.update();
     renderer.render(scene, camera);
 }
