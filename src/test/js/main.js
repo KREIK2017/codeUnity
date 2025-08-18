@@ -162,7 +162,7 @@ const st = ScrollTrigger.create({
     trigger: document.body,
     start: "top top",
     end: "bottom bottom",
-    scrub: 1,
+    scrub: 0.2,
 });
 
 // --- Toggle Logic ---
