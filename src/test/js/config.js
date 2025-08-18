@@ -7,6 +7,7 @@ export const CONFIG = {
     CUBE_FALL_X_OFFSET: 5,
     CUBE_ROTATION_X: Math.PI * 2,
     CUBE_ROTATION_Z: Math.PI * 1.5,
+    // Adjusted for mobile performance
     CAMERA_FOLLOW_SPEED: 0.1,
     CAMERA_OFFSET: new THREE.Vector3(0, 5, 15)
 };
