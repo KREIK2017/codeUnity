@@ -169,7 +169,8 @@ const st = ScrollTrigger.create({
     fastScrollEnd: true,
 });
 
-st.disable().enable();
+st.disable();
+st.enable();
 
 // --- Toggle Logic ---
 const controlsCheckbox = document.getElementById('controls-checkbox');
@@ -213,6 +214,3 @@ window.addEventListener('resize', () => {
     renderer.setSize(window.innerWidth, window.innerHeight);
 });
 
-window.addEventListener('load', () => {
-    ScrollTrigger.refresh();
-});
