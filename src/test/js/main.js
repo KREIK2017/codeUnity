@@ -67,6 +67,7 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
 renderer.shadowMap.enabled = true; // Enable shadows
 renderer.domElement.style.zIndex = -1; // Set initial z-index for scrolling
+renderer.domElement.style.pointerEvents = 'none';
 document.body.appendChild(renderer.domElement);
 
 // --- Controls ---
@@ -169,8 +170,7 @@ const st = ScrollTrigger.create({
     fastScrollEnd: true,
 });
 
-st.disable();
-st.enable();
+
 
 // --- Toggle Logic ---
 const controlsCheckbox = document.getElementById('controls-checkbox');
