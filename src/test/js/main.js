@@ -210,3 +210,7 @@ window.addEventListener('resize', () => {
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
 });
+
+window.addEventListener('load', () => {
+    ScrollTrigger.refresh();
+});
