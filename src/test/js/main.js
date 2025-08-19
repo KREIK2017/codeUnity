@@ -131,7 +131,7 @@ const tl = gsap.timeline({
 // Тепер GSAP керує всіма об'єктами, забезпечуючи ідеальну синхронізацію.
 
 // ЕТАП 1: Ковзання до краю платформи
-tl.to([fallingCube.position, camera.position, controls.target], {
+tl.to([fallingCube.position, camera.position], {
     x: `+=${CONFIG.CUBE_SLIDE_DISTANCE}`,
     ease: "power1.in",
     duration: CONFIG.CUBE_SLIDE_DURATION
@@ -140,13 +140,13 @@ tl.to([fallingCube.position, camera.position, controls.target], {
 // ЕТАП 2: Падіння з краю (починається після ковзання)
 
 // Горизонтальний рух під час падіння
-tl.to([fallingCube.position, camera.position, controls.target], {
+tl.to([fallingCube.position, camera.position], {
     x: `+=${CONFIG.CUBE_FALL_X_OFFSET}`,
     ease: "none"
 }, ">");
 
 // Вертикальний рух під час падіння (починається одночасно з горизонтальним)
-tl.to([fallingCube.position, camera.position, controls.target], {
+tl.to([fallingCube.position, camera.position], {
     y: `-=${CONFIG.CUBE_FALL_DISTANCE}`,
     ease: "power1.in"
 }, "<");
@@ -169,24 +169,7 @@ const st = ScrollTrigger.create({
     fastScrollEnd: true,
 });
 
-// --- Toggle Logic ---
-// const controlsCheckbox = document.getElementById('controls-checkbox');
 
-// controlsCheckbox.addEventListener('change', () => {
-//     if (controlsCheckbox.checked) {
-//         // Вмикаємо "Режим контролера"
-//         st.disable();
-//         controls.enabled = true;
-//         controls.enableZoom = true;
-//         renderer.domElement.style.zIndex = 1; // Move canvas to the front
-//     } else {
-//         // Вмикаємо "Режим прокрутки"
-//         st.enable();
-//         controls.enabled = false;
-//         controls.enableZoom = false;
-//         renderer.domElement.style.zIndex = -1; // Move canvas to the back
-//     }
-// });
 
 // --- Animation Loop ---
 function animate() {
