@@ -3,10 +3,10 @@ window.scrollTo(0, 0);
 import * as THREE from 'three';
 import WebGL from 'three/examples/jsm/capabilities/WebGL.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
+// import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import modelUrl from '../TEST2-optimized.glb';
+import modelUrl from '../TEST2.glb';
 import { setupModelCameraGUI } from './GUI.js';
 import { createFallingCubeScene } from './FallingCube.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
@@ -96,9 +96,9 @@ scene.add(directionalLight);
 
 // --- Load Model ---
 const loader = new GLTFLoader();
-const dracoLoader = new DRACOLoader();
-dracoLoader.setDecoderPath('./libs/draco/gltf/');
-loader.setDRACOLoader(dracoLoader);
+// const dracoLoader = new DRACOLoader();
+// dracoLoader.setDecoderPath('./libs/draco/gltf/');
+// loader.setDRACOLoader(dracoLoader);
 loader.load(modelUrl, function (gltf) {
     const model = gltf.scene;
     window.model = model; // Expose for testing
