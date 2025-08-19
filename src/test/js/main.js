@@ -9,7 +9,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import modelUrl from '../TEST2.glb';
 import { setupModelCameraGUI } from './GUI.js';
 import { createFallingCubeScene } from './FallingCube.js';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+// import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -70,16 +70,16 @@ renderer.domElement.style.zIndex = -1; // Set initial z-index for scrolling
 document.body.appendChild(renderer.domElement);
 
 // --- Controls ---
-const controls = new OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true;
-controls.dampingFactor = 0.05;
-controls.minDistance = 5;
-controls.maxDistance = 100;
-controls.target.copy(cubeWorldPosition);
+// const controls = new OrbitControls(camera, renderer.domElement);
+// controls.enableDamping = true;
+// controls.dampingFactor = 0.05;
+// controls.minDistance = 5;
+// controls.maxDistance = 100;
+// controls.target.copy(cubeWorldPosition);
 
 // Вимикаємо контролери та зум за замовчуванням
-controls.enabled = false;
-controls.enableZoom = false;
+// controls.enabled = false;
+// controls.enableZoom = false;
 
 // --- Lighting ---
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
@@ -170,23 +170,23 @@ const st = ScrollTrigger.create({
 });
 
 // --- Toggle Logic ---
-const controlsCheckbox = document.getElementById('controls-checkbox');
+// const controlsCheckbox = document.getElementById('controls-checkbox');
 
-controlsCheckbox.addEventListener('change', () => {
-    if (controlsCheckbox.checked) {
-        // Вмикаємо "Режим контролера"
-        st.disable();
-        controls.enabled = true;
-        controls.enableZoom = true;
-        renderer.domElement.style.zIndex = 1; // Move canvas to the front
-    } else {
-        // Вмикаємо "Режим прокрутки"
-        st.enable();
-        controls.enabled = false;
-        controls.enableZoom = false;
-        renderer.domElement.style.zIndex = -1; // Move canvas to the back
-    }
-});
+// controlsCheckbox.addEventListener('change', () => {
+//     if (controlsCheckbox.checked) {
+//         // Вмикаємо "Режим контролера"
+//         st.disable();
+//         controls.enabled = true;
+//         controls.enableZoom = true;
+//         renderer.domElement.style.zIndex = 1; // Move canvas to the front
+//     } else {
+//         // Вмикаємо "Режим прокрутки"
+//         st.enable();
+//         controls.enabled = false;
+//         controls.enableZoom = false;
+//         renderer.domElement.style.zIndex = -1; // Move canvas to the back
+//     }
+// });
 
 // --- Animation Loop ---
 function animate() {
@@ -194,7 +194,7 @@ function animate() {
 
     // GSAP тепер повністю керує камерою під час скролу.
     // Ми просто оновлюємо контролери та рендеримо сцену.
-    controls.update();
+    // controls.update();
     renderer.render(scene, camera);
 }
 
