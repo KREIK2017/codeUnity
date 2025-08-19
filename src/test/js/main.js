@@ -9,7 +9,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import modelUrl from '../TEST2.glb';
 import { setupModelCameraGUI } from './GUI.js';
 import { createFallingCubeScene } from './FallingCube.js';
-// import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -70,16 +70,16 @@ renderer.domElement.style.zIndex = -1; // Set initial z-index for scrolling
 document.body.appendChild(renderer.domElement);
 
 // --- Controls ---
-// const controls = new OrbitControls(camera, renderer.domElement);
-// controls.enableDamping = true;
-// controls.dampingFactor = 0.05;
-// controls.minDistance = 5;
-// controls.maxDistance = 100;
-// controls.target.copy(cubeWorldPosition);
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.05;
+controls.minDistance = 5;
+controls.maxDistance = 100;
+controls.target.copy(cubeWorldPosition);
 
 // Вимикаємо контролери та зум за замовчуванням
-// controls.enabled = false;
-// controls.enableZoom = false;
+controls.enabled = false;
+controls.enableZoom = false;
 
 // --- Lighting ---
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
@@ -131,7 +131,7 @@ const tl = gsap.timeline({
 // Тепер GSAP керує всіма об'єктами, забезпечуючи ідеальну синхронізацію.
 
 // ЕТАП 1: Ковзання до краю платформи
-tl.to([fallingCube.position, camera.position], {
+tl.to([fallingCube.position, camera.position, controls.target], {
     x: `+=${CONFIG.CUBE_SLIDE_DISTANCE}`,
     ease: "power1.in",
     duration: CONFIG.CUBE_SLIDE_DURATION
@@ -140,13 +140,13 @@ tl.to([fallingCube.position, camera.position], {
 // ЕТАП 2: Падіння з краю (починається після ковзання)
 
 // Горизонтальний рух під час падіння
-tl.to([fallingCube.position, camera.position], {
+tl.to([fallingCube.position, camera.position, controls.target], {
     x: `+=${CONFIG.CUBE_FALL_X_OFFSET}`,
     ease: "none"
 }, ">");
 
 // Вертикальний рух під час падіння (починається одночасно з горизонтальним)
-tl.to([fallingCube.position, camera.position], {
+tl.to([fallingCube.position, camera.position, controls.target], {
     y: `-=${CONFIG.CUBE_FALL_DISTANCE}`,
     ease: "power1.in"
 }, "<");
@@ -169,6 +169,27 @@ const st = ScrollTrigger.create({
     fastScrollEnd: true,
 });
 
+// --- Toggle Logic ---
+const controlsCheckbox = document.getElementById('controls-checkbox');
+
+controlsCheckbox.addEventListener('change', () => {
+    if (controlsCheckbox.checked) {
+        // Вмикаємо "Режим контролера"
+        st.disable();
+        controls.enabled = true;
+        controls.enableZoom = true;
+        renderer.domElement.style.zIndex = 1; // Move canvas to the front
+        renderer.domElement.style.pointerEvents = 'auto';
+    } else {
+        // Вмикаємо "Режим прокрутки"
+        st.enable();
+        controls.enabled = false;
+        controls.enableZoom = false;
+        renderer.domElement.style.zIndex = -1; // Move canvas to the back
+        renderer.domElement.style.pointerEvents = 'none';
+    }
+});
+
 
 
 // --- Animation Loop ---
@@ -177,7 +198,7 @@ function animate() {
 
     // GSAP тепер повністю керує камерою під час скролу.
     // Ми просто оновлюємо контролери та рендеримо сцену.
-    // controls.update();
+    controls.update();
     renderer.render(scene, camera);
 }
 
