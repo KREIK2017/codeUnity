@@ -169,6 +169,8 @@ const st = ScrollTrigger.create({
     fastScrollEnd: true,
 });
 
+st.disable().enable();
+
 // --- Toggle Logic ---
 const controlsCheckbox = document.getElementById('controls-checkbox');
 
