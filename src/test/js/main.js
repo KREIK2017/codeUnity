@@ -107,13 +107,17 @@ loader.load(modelUrl, function (gltf) {
     // --- Налаштування моделі (поворот, масштаб, позиція) ---
     model.rotation.y = 2;
 
-    // Traverse the model to enable shadows
+    console.log('Starting model traversal for debugging...');
+    // Traverse the model to enable shadows and log all object names
     model.traverse(function (node) {
+        console.log(`Found object: '${node.name}' (type: ${node.type})`);
         if (node.isMesh) {
             node.castShadow = true;
             node.receiveShadow = true;
         }
     });
+    console.log('Finished model traversal.');
+
     scene.add(model);
 
     // --- GUI Setup ---
