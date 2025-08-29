@@ -224,6 +224,7 @@ function handleIntersections() {
 
     if (intersects.length > 0) {
         const firstIntersect = intersects[0];
+        console.log('Raycaster hit:', firstIntersect.object.name);
         hoveredObject = firstIntersect.object; // Store the specific object
 
         // Position the icon over the intersection point
