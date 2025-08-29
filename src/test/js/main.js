@@ -1,4 +1,4 @@
-// history.scrollRestoration = "manual";
+history.scrollRestoration = "manual";
 window.scrollTo(0, 0);
 import * as THREE from 'three';
 import WebGL from 'three/examples/jsm/capabilities/WebGL.js';
@@ -15,7 +15,35 @@ gsap.registerPlugin(ScrollTrigger);
 
 import { CONFIG } from './config.js';
 
-// --- Interaction Setup ---
+// --- Data-Driven Interaction Setup ---
+const interactiveGroups = [
+    {
+        id: 'factory1',
+        name: 'Front-End Factory',
+        parts: [
+            'Front-Factory',
+            'Front-Factory-2',
+            'Text-Front-Factory'
+        ],
+        description: 'This factory produces all the user interface components and handles client-side logic.',
+        foundObjects: [] // To store the actual THREE.Object3D objects
+    },
+    {
+        id: 'factory2',
+        name: 'Data Factory',
+        parts: [
+            'Data-Factory',
+            'Text-Data-Factory'
+        ],
+        description: 'This factory manages data storage, APIs, and backend logic.',
+        foundObjects: []
+    }
+    // To add a new group, just add a new object here.
+];
+
+const allInteractiveParts = interactiveGroups.flatMap(g => g.parts);
+
+// --- UI & Raycasting Setup ---
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 const infoIcon = document.getElementById('info-icon');
@@ -23,14 +51,8 @@ const infoPanel = document.getElementById('info-panel');
 const infoTitle = document.getElementById('info-title');
 const infoText = document.getElementById('info-text');
 const closePanel = document.getElementById('close-panel');
-
-let hoveredObject = null;
-const interactiveObjects = [];
-const factory1Parts = [
-    'Front-Factory',
-    'Front-Factory-2',
-    'Text-Front-Factory'
-];
+let hoveredGroupId = null;
+const combinedBox = new THREE.Box3();
 
 // --- Scene Setup ---
 const scene = new THREE.Scene();
@@ -84,7 +106,6 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
 renderer.shadowMap.enabled = true; // Enable shadows
 renderer.domElement.style.zIndex = -1; // Set initial z-index for scrolling
-// IMPORTANT: Allow pointer events so raycasting can work all the time.
 renderer.domElement.style.pointerEvents = 'auto';
 document.body.appendChild(renderer.domElement);
 
@@ -115,140 +136,77 @@ scene.add(directionalLight);
 
 // --- Load Model ---
 const loader = new GLTFLoader();
-// const dracoLoader = new DRACOLoader();
-// dracoLoader.setDecoderPath('./libs/draco/gltf/');
-// loader.setDRACOLoader(dracoLoader);
 loader.load(modelUrl, function (gltf) {
     const model = gltf.scene;
     window.model = model; // Expose for testing
 
-    // --- Налаштування моделі (поворот, масштаб, позиція) ---
     model.rotation.y = 2;
 
-    // Traverse the model to enable shadows and find interactive objects
     model.traverse(function (node) {
         if (node.isMesh) {
             node.castShadow = true;
             node.receiveShadow = true;
 
-            // Check if the node is one of our interactive objects
-            if (factory1Parts.includes(node.name)) {
-                interactiveObjects.push(node);
-                console.log(`Found interactive object: ${node.name}`);
+            if (allInteractiveParts.includes(node.name)) {
+                const group = interactiveGroups.find(g => g.parts.includes(node.name));
+                if (group) {
+                    group.foundObjects.push(node);
+                    console.log(`Found object '${node.name}' for group '${group.name}'`);
+                }
             }
         }
     });
     scene.add(model);
-
-    // --- GUI Setup ---
-    // setupModelCameraGUI(model, camera);
 
 }, undefined, function (error) {
     console.error('An error happened while loading the model:', error);
 });
 
 // --- GSAP Animation Setup ---
-const tl = gsap.timeline({
-    paused: true
-});
+const tl = gsap.timeline({ paused: true });
+tl.to([fallingCube.position, camera.position, controls.target], { x: `+=${CONFIG.CUBE_SLIDE_DISTANCE}`, ease: "power1.in", duration: CONFIG.CUBE_SLIDE_DURATION });
+tl.to([fallingCube.position, camera.position, controls.target], { x: `+=${CONFIG.CUBE_FALL_X_OFFSET}`, ease: "none" }, ">");
+tl.to([fallingCube.position, camera.position, controls.target], { y: `-=${CONFIG.CUBE_FALL_DISTANCE}`, ease: "power1.in" }, "<");
+tl.to(fallingCube.rotation, { x: CONFIG.CUBE_ROTATION_X, z: CONFIG.CUBE_ROTATION_Z, ease: "power1.inOut" }, "<");
 
-// --- Анімація куба, камери та цілі контролів ---
-// Тепер GSAP керує всіма об'єктами, забезпечуючи ідеальну синхронізацію.
-
-// ЕТАП 1: Ковзання до краю платформи
-tl.to([fallingCube.position, camera.position, controls.target], {
-    x: `+=${CONFIG.CUBE_SLIDE_DISTANCE}`,
-    ease: "power1.in",
-    duration: CONFIG.CUBE_SLIDE_DURATION
-});
-
-// ЕТАП 2: Падіння з краю (починається після ковзання)
-
-// Горизонтальний рух під час падіння
-tl.to([fallingCube.position, camera.position, controls.target], {
-    x: `+=${CONFIG.CUBE_FALL_X_OFFSET}`,
-    ease: "none"
-}, ">");
-
-// Вертикальний рух під час падіння (починається одночасно з горизонтальним)
-tl.to([fallingCube.position, camera.position, controls.target], {
-    y: `-=${CONFIG.CUBE_FALL_DISTANCE}`,
-    ease: "power1.in"
-}, "<");
-
-// Обертання куба починається ТІЛЬКИ коли починається падіння
-tl.to(fallingCube.rotation, {
-    x: CONFIG.CUBE_ROTATION_X,
-    z: CONFIG.CUBE_ROTATION_Z,
-    ease: "power1.inOut"
-}, "<");
-
-
-// Створюємо ScrollTrigger окремо, щоб ним можна було керувати
-const st = ScrollTrigger.create({
-    animation: tl,
-    trigger: document.body,
-    start: "top top",
-    end: "bottom bottom",
-    scrub: true,
-    fastScrollEnd: true,
-});
-
-
+const st = ScrollTrigger.create({ animation: tl, trigger: document.body, start: "top top", end: "bottom bottom", scrub: true, fastScrollEnd: true });
 
 // --- Toggle Logic ---
 const controlsCheckbox = document.getElementById('controls-checkbox');
-
 controlsCheckbox.addEventListener('change', () => {
     if (controlsCheckbox.checked) {
-        // Вмикаємо "Режим контролера"
         st.disable();
         controls.enabled = true;
         controls.enableZoom = true;
-        renderer.domElement.style.zIndex = 1; // Move canvas to the front
+        renderer.domElement.style.zIndex = 1;
     } else {
-        // Вмикаємо "Режим прокрутки"
         st.enable();
         controls.enabled = false;
         controls.enableZoom = false;
-        renderer.domElement.style.zIndex = -1; // Move canvas to the back
+        renderer.domElement.style.zIndex = -1;
     }
 });
 
 // --- Interaction Logic ---
-const factory1Group = new THREE.Group();
-const combinedBox = new THREE.Box3();
-
 function handleIntersections() {
-    if (interactiveObjects.length === 0) return;
+    const allFoundObjects = interactiveGroups.flatMap(g => g.foundObjects);
+    if (allFoundObjects.length === 0) return;
 
     raycaster.setFromCamera(mouse, camera);
-    const intersects = raycaster.intersectObjects(interactiveObjects);
+    const intersects = raycaster.intersectObjects(allFoundObjects);
 
     if (intersects.length > 0) {
-        const intersectedName = intersects[0].object.name;
+        const intersectedObject = intersects[0].object;
+        const group = interactiveGroups.find(g => g.parts.includes(intersectedObject.name));
 
-        // Check if the intersected object is part of our factory group
-        if (factory1Parts.includes(intersectedName)) {
-            hoveredObject = 'factory1'; // Set a flag for the whole group
-
-            // --- Calculate the center of the entire group ---
-            // Clear the box before recalculating
+        if (group) {
+            hoveredGroupId = group.id;
             combinedBox.makeEmpty();
-
-            // Find all objects belonging to factory1 that have been loaded
-            const factory1Objects = interactiveObjects.filter(obj => factory1Parts.includes(obj.name));
-            
-            // Expand the box to include all parts of the factory
-            factory1Objects.forEach(obj => {
+            group.foundObjects.forEach(obj => {
                 combinedBox.expandByObject(obj);
             });
 
-            // Get the center of the combined box
             const center = combinedBox.getCenter(new THREE.Vector3());
-            // ---
-
-            // Project the center point to screen coordinates
             const screenPosition = center.project(camera);
             const x = (screenPosition.x + 1) / 2 * window.innerWidth;
             const y = -(screenPosition.y - 1) / 2 * window.innerHeight;
@@ -256,14 +214,12 @@ function handleIntersections() {
             infoIcon.style.left = `${x}px`;
             infoIcon.style.top = `${y}px`;
             infoIcon.style.display = 'block';
-
         } else {
-             hoveredObject = null;
-             infoIcon.style.display = 'none';
+            hoveredGroupId = null;
+            infoIcon.style.display = 'none';
         }
-
     } else {
-        hoveredObject = null;
+        hoveredGroupId = null;
         infoIcon.style.display = 'none';
     }
 }
@@ -274,9 +230,12 @@ window.addEventListener('mousemove', (event) => {
 });
 
 infoIcon.addEventListener('click', () => {
-    if (hoveredObject === 'factory1') { // Check against the group flag
-        infoTitle.textContent = 'Front-End Factory';
-        infoText.textContent = 'This factory produces all the user interface components and handles client-side logic.';
+    if (!hoveredGroupId) return;
+
+    const group = interactiveGroups.find(g => g.id === hoveredGroupId);
+    if (group) {
+        infoTitle.textContent = group.name;
+        infoText.textContent = group.description;
         infoPanel.style.display = 'block';
     }
 });
@@ -285,17 +244,13 @@ closePanel.addEventListener('click', () => {
     infoPanel.style.display = 'none';
 });
 
-
 // --- Animation Loop ---
 function animate() {
     requestAnimationFrame(animate);
-
     handleIntersections();
-
     controls.update();
     renderer.render(scene, camera);
 }
-
 animate();
 
 // --- Handle Window Resize ---
