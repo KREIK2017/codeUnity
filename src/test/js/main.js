@@ -1,4 +1,4 @@
-'''history.scrollRestoration = "manual";
+// history.scrollRestoration = "manual";
 window.scrollTo(0, 0);
 import * as THREE from 'three';
 import WebGL from 'three/examples/jsm/capabilities/WebGL.js';
@@ -281,4 +281,3 @@ window.addEventListener('resize', () => {
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
 });
-'''
