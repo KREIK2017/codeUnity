@@ -223,18 +223,21 @@ function handleIntersections() {
     const intersects = raycaster.intersectObjects(interactiveObjects);
 
     if (intersects.length > 0) {
-        const firstIntersect = intersects[0];
-        console.log('Raycaster hit:', firstIntersect.object.name);
-        hoveredObject = firstIntersect.object; // Store the specific object
+        hoveredObject = intersects[0].object; // Update the hovered object
 
-        // Position the icon over the intersection point
-        const screenPosition = firstIntersect.point.clone().project(camera);
+        // Calculate the center of the object's bounding box
+        const boundingBox = new THREE.Box3().setFromObject(hoveredObject);
+        const center = boundingBox.getCenter(new THREE.Vector3());
+
+        // Project the center point to screen coordinates
+        const screenPosition = center.project(camera);
         const x = (screenPosition.x + 1) / 2 * window.innerWidth;
         const y = -(screenPosition.y - 1) / 2 * window.innerHeight;
         
         infoIcon.style.left = `${x}px`;
         infoIcon.style.top = `${y}px`;
         infoIcon.style.display = 'block';
+
     } else {
         hoveredObject = null;
         infoIcon.style.display = 'none';
