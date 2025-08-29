@@ -1,4 +1,4 @@
-history.scrollRestoration = "manual";
+'''history.scrollRestoration = "manual";
 window.scrollTo(0, 0);
 import * as THREE from 'three';
 import WebGL from 'three/examples/jsm/capabilities/WebGL.js';
@@ -14,6 +14,23 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 gsap.registerPlugin(ScrollTrigger);
 
 import { CONFIG } from './config.js';
+
+// --- Interaction Setup ---
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
+const infoIcon = document.getElementById('info-icon');
+const infoPanel = document.getElementById('info-panel');
+const infoTitle = document.getElementById('info-title');
+const infoText = document.getElementById('info-text');
+const closePanel = document.getElementById('close-panel');
+
+let hoveredObject = null;
+const interactiveObjects = [];
+const factory1Parts = [
+    'Front-Factory',
+    'Front-Factory-2',
+    'Text-Front-Factory'
+];
 
 // --- Scene Setup ---
 const scene = new THREE.Scene();
@@ -67,7 +84,8 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
 renderer.shadowMap.enabled = true; // Enable shadows
 renderer.domElement.style.zIndex = -1; // Set initial z-index for scrolling
-renderer.domElement.style.pointerEvents = 'none';
+// IMPORTANT: Allow pointer events so raycasting can work all the time.
+renderer.domElement.style.pointerEvents = 'auto';
 document.body.appendChild(renderer.domElement);
 
 // --- Controls ---
@@ -107,17 +125,19 @@ loader.load(modelUrl, function (gltf) {
     // --- Налаштування моделі (поворот, масштаб, позиція) ---
     model.rotation.y = 2;
 
-    console.log('Starting model traversal for debugging...');
-    // Traverse the model to enable shadows and log all object names
+    // Traverse the model to enable shadows and find interactive objects
     model.traverse(function (node) {
-        console.log(`Found object: '${node.name}' (type: ${node.type})`);
         if (node.isMesh) {
             node.castShadow = true;
             node.receiveShadow = true;
+
+            // Check if the node is one of our interactive objects
+            if (factory1Parts.includes(node.name)) {
+                interactiveObjects.push(node);
+                console.log(`Found interactive object: ${node.name}`);
+            }
         }
     });
-    console.log('Finished model traversal.');
-
     scene.add(model);
 
     // --- GUI Setup ---
@@ -186,25 +206,69 @@ controlsCheckbox.addEventListener('change', () => {
         controls.enabled = true;
         controls.enableZoom = true;
         renderer.domElement.style.zIndex = 1; // Move canvas to the front
-        renderer.domElement.style.pointerEvents = 'auto';
     } else {
         // Вмикаємо "Режим прокрутки"
         st.enable();
         controls.enabled = false;
         controls.enableZoom = false;
         renderer.domElement.style.zIndex = -1; // Move canvas to the back
-        renderer.domElement.style.pointerEvents = 'none';
     }
 });
 
+// --- Interaction Logic ---
+function handleIntersections() {
+    if (interactiveObjects.length === 0) return;
+
+    raycaster.setFromCamera(mouse, camera);
+    const intersects = raycaster.intersectObjects(interactiveObjects);
+
+    if (intersects.length > 0) {
+        const firstIntersect = intersects[0];
+        hoveredObject = firstIntersect.object; // Store the specific object
+
+        // Position the icon over the intersection point
+        const screenPosition = firstIntersect.point.clone().project(camera);
+        const x = (screenPosition.x + 1) / 2 * window.innerWidth;
+        const y = -(screenPosition.y - 1) / 2 * window.innerHeight;
+        
+        infoIcon.style.left = `${x}px`;
+        infoIcon.style.top = `${y}px`;
+        infoIcon.style.display = 'block';
+    } else {
+        hoveredObject = null;
+        infoIcon.style.display = 'none';
+    }
+}
+
+window.addEventListener('mousemove', (event) => {
+    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+});
+
+infoIcon.addEventListener('click', () => {
+    if (!hoveredObject) return;
+
+    // Check if the hovered object is part of Factory 1
+    if (factory1Parts.includes(hoveredObject.name)) {
+        infoTitle.textContent = 'Front-End Factory';
+        infoText.textContent = 'This factory produces all the user interface components and handles client-side logic.';
+    }
+    // Future: else if (factory2Parts.includes(hoveredObject.name)) { ... }
+    
+    infoPanel.style.display = 'block';
+});
+
+closePanel.addEventListener('click', () => {
+    infoPanel.style.display = 'none';
+});
 
 
 // --- Animation Loop ---
 function animate() {
     requestAnimationFrame(animate);
 
-    // GSAP тепер повністю керує камерою під час скролу.
-    // Ми просто оновлюємо контролери та рендеримо сцену.
+    handleIntersections();
+
     controls.update();
     renderer.render(scene, camera);
 }
@@ -217,4 +281,4 @@ window.addEventListener('resize', () => {
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
 });
-
+'''

@@ -44,3 +44,52 @@ canvas {
 .controls-toggle input {
     cursor: pointer;
 }
+
+.info-icon {
+    position: fixed;
+    width: 30px;
+    height: 30px;
+    background-color: rgba(0, 123, 255, 0.8);
+    color: white;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 30px;
+    font-family: sans-serif;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    z-index: 101;
+    pointer-events: auto;
+    transform: translate(-50%, -50%); /* Center the icon on the coordinate */
+}
+
+.info-panel {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 300px;
+    max-width: 90%;
+    padding: 20px;
+    background-color: rgba(255, 255, 255, 0.95);
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    z-index: 102;
+    font-family: sans-serif;
+}
+
+.info-panel h2 {
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+
+.info-panel button {
+    margin-top: 15px;
+    padding: 8px 15px;
+    border: none;
+    background-color: #007bff;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+}
