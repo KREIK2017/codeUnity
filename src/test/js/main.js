@@ -216,6 +216,9 @@ controlsCheckbox.addEventListener('change', () => {
 });
 
 // --- Interaction Logic ---
+const factory1Group = new THREE.Group();
+const combinedBox = new THREE.Box3();
+
 function handleIntersections() {
     if (interactiveObjects.length === 0) return;
 
@@ -223,20 +226,41 @@ function handleIntersections() {
     const intersects = raycaster.intersectObjects(interactiveObjects);
 
     if (intersects.length > 0) {
-        hoveredObject = intersects[0].object; // Update the hovered object
+        const intersectedName = intersects[0].object.name;
 
-        // Calculate the center of the object's bounding box
-        const boundingBox = new THREE.Box3().setFromObject(hoveredObject);
-        const center = boundingBox.getCenter(new THREE.Vector3());
+        // Check if the intersected object is part of our factory group
+        if (factory1Parts.includes(intersectedName)) {
+            hoveredObject = 'factory1'; // Set a flag for the whole group
 
-        // Project the center point to screen coordinates
-        const screenPosition = center.project(camera);
-        const x = (screenPosition.x + 1) / 2 * window.innerWidth;
-        const y = -(screenPosition.y - 1) / 2 * window.innerHeight;
-        
-        infoIcon.style.left = `${x}px`;
-        infoIcon.style.top = `${y}px`;
-        infoIcon.style.display = 'block';
+            // --- Calculate the center of the entire group ---
+            // Clear the box before recalculating
+            combinedBox.makeEmpty();
+
+            // Find all objects belonging to factory1 that have been loaded
+            const factory1Objects = interactiveObjects.filter(obj => factory1Parts.includes(obj.name));
+            
+            // Expand the box to include all parts of the factory
+            factory1Objects.forEach(obj => {
+                combinedBox.expandByObject(obj);
+            });
+
+            // Get the center of the combined box
+            const center = combinedBox.getCenter(new THREE.Vector3());
+            // ---
+
+            // Project the center point to screen coordinates
+            const screenPosition = center.project(camera);
+            const x = (screenPosition.x + 1) / 2 * window.innerWidth;
+            const y = -(screenPosition.y - 1) / 2 * window.innerHeight;
+            
+            infoIcon.style.left = `${x}px`;
+            infoIcon.style.top = `${y}px`;
+            infoIcon.style.display = 'block';
+
+        } else {
+             hoveredObject = null;
+             infoIcon.style.display = 'none';
+        }
 
     } else {
         hoveredObject = null;
@@ -250,16 +274,11 @@ window.addEventListener('mousemove', (event) => {
 });
 
 infoIcon.addEventListener('click', () => {
-    if (!hoveredObject) return;
-
-    // Check if the hovered object is part of Factory 1
-    if (factory1Parts.includes(hoveredObject.name)) {
+    if (hoveredObject === 'factory1') { // Check against the group flag
         infoTitle.textContent = 'Front-End Factory';
         infoText.textContent = 'This factory produces all the user interface components and handles client-side logic.';
+        infoPanel.style.display = 'block';
     }
-    // Future: else if (factory2Parts.includes(hoveredObject.name)) { ... }
-    
-    infoPanel.style.display = 'block';
 });
 
 closePanel.addEventListener('click', () => {
