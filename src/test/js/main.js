@@ -15,6 +15,8 @@ gsap.registerPlugin(ScrollTrigger);
 
 import { CONFIG } from './config.js';
 
+const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
 // --- Data-Driven Interaction Setup ---
 const interactiveGroups = [
     {
@@ -82,7 +84,6 @@ camera.position.copy(cubeWorldPosition.clone().add(cameraOffset));
 camera.lookAt(cubeWorldPosition);
 
 // --- Renderer Setup ---
-const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 let renderer;
 if (WebGL.isWebGL2Available()) {
     renderer = new THREE.WebGLRenderer({ antialias: !isMobile });
