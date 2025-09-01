@@ -135,23 +135,43 @@ directionalLight.shadow.camera.far = 50;
 scene.add(directionalLight);
 
 // --- Pulsing Animation ---
-function startPulsingAnimation() {
-    const allInteractiveObjects = interactiveGroups.flatMap(g => g.foundObjects);
-    if (allInteractiveObjects.length === 0) return;
+const groupPulseAnimations = {};
 
-    const materials = allInteractiveObjects.map(obj => obj.material).filter((v, i, a) => a.indexOf(v) === i); // Unique materials
+function stopGroupPulse(groupId) {
+    if (groupPulseAnimations[groupId]) {
+        groupPulseAnimations[groupId].kill();
+        delete groupPulseAnimations[groupId];
+
+        const group = interactiveGroups.find(g => g.id === groupId);
+        if (group) {
+            const materials = group.foundObjects.map(obj => obj.material).filter(Boolean);
+            materials.forEach(material => {
+                if (material.originalEmissive) {
+                    material.emissive.copy(material.originalEmissive);
+                }
+            });
+        }
+    }
+}
+
+function startGroupPulse(group) {
+    if (!group || groupPulseAnimations[group.id] || group.foundObjects.length === 0) return;
+
+    const materials = group.foundObjects.map(obj => obj.material).filter(Boolean);
+    if (materials.length === 0) return;
 
     materials.forEach(material => {
-        // Ensure emissive property exists and store original
-        if (!material.emissive) {
-            material.emissive = new THREE.Color(0x000000);
+        if (!material.originalEmissive) {
+            if (!material.emissive) {
+                material.emissive = new THREE.Color(0x000000);
+            }
+            material.originalEmissive = material.emissive.clone();
         }
-        material.originalEmissive = material.emissive.clone();
     });
 
-    const pulseColor = new THREE.Color(0.5, 0.5, 0.5); // A soft white
+    const pulseColor = new THREE.Color(0.5, 0.5, 0.5);
 
-    gsap.to(materials.map(m => m.emissive), {
+    groupPulseAnimations[group.id] = gsap.to(materials.map(m => m.emissive), {
         r: pulseColor.r,
         g: pulseColor.g,
         b: pulseColor.b,
@@ -161,6 +181,11 @@ function startPulsingAnimation() {
         yoyo: true
     });
 }
+
+function startAllPulsing() {
+    interactiveGroups.forEach(startGroupPulse);
+}
+
 
 // --- Load Model ---
 const loader = new GLTFLoader();
@@ -193,7 +218,7 @@ loader.load(modelUrl, function (gltf) {
     scene.add(model);
 
     // Start the pulsing animation after the model is loaded
-    startPulsingAnimation();
+    startAllPulsing();
 
 }, undefined, function (error) {
     console.error('An error happened while loading the model:', error);
@@ -271,6 +296,9 @@ infoIcon.addEventListener('click', () => {
 
     const group = interactiveGroups.find(g => g.id === hoveredGroupId);
     if (group) {
+        // Stop the pulsing for the clicked group
+        stopGroupPulse(group.id);
+
         infoTitle.textContent = group.name;
         infoText.textContent = group.description;
         infoPanel.style.display = 'block';
