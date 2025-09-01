@@ -176,6 +176,12 @@ loader.load(modelUrl, function (gltf) {
             node.receiveShadow = true;
 
             if (allInteractiveParts.includes(node.name)) {
+                // This is an interactive object.
+                // Clone its material to ensure the pulsing animation doesn't affect other objects (like trees).
+                if (node.material) {
+                    node.material = node.material.clone();
+                }
+
                 const group = interactiveGroups.find(g => g.parts.includes(node.name));
                 if (group) {
                     group.foundObjects.push(node);
