@@ -66,7 +66,7 @@ let cameraOffset = CONFIG.CAMERA_OFFSET.clone(); // Use let and clone to allow m
 // On mobile, zoom out to show more of the island
 if (isMobile) {
     cameraOffset.y = 10; // Increase height
-    cameraOffset.z = 30; // Increase distance (zoom out)
+    cameraOffset.z = 40; // Increase distance (zoom out)
 }
 
 // --- Camera Setup ---
