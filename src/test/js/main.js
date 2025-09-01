@@ -59,7 +59,13 @@ const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x87ceeb); // Sky blue background
 
 // Визначаємо, на якій відстані від куба буде камера
-const cameraOffset = CONFIG.CAMERA_OFFSET;
+let cameraOffset = CONFIG.CAMERA_OFFSET.clone(); // Use let and clone to allow modification
+
+// On mobile, zoom out to show more of the island
+if (isMobile) {
+    cameraOffset.y = 10; // Increase height
+    cameraOffset.z = 30; // Increase distance (zoom out)
+}
 
 // --- Camera Setup ---
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
