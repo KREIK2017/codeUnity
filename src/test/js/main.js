@@ -15,7 +15,7 @@ gsap.registerPlugin(ScrollTrigger);
 
 import { CONFIG } from './config.js';
 
-const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
 // --- Data-Driven Interaction Setup ---
 const interactiveGroups = [
