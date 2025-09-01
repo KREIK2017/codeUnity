@@ -113,7 +113,7 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
 renderer.shadowMap.enabled = true; // Enable shadows
 renderer.domElement.style.zIndex = -1; // Set initial z-index for scrolling
-renderer.domElement.style.pointerEvents = 'auto';
+renderer.domElement.style.pointerEvents = 'none';
 document.body.appendChild(renderer.domElement);
 
 // --- Controls ---
@@ -244,15 +244,27 @@ const st = ScrollTrigger.create({ animation: tl, trigger: document.body, start: 
 const controlsCheckbox = document.getElementById('controls-checkbox');
 controlsCheckbox.addEventListener('change', () => {
     if (controlsCheckbox.checked) {
+        // --- OrbitControls Mode ---
         st.disable();
         controls.enabled = true;
         controls.enableZoom = true;
         renderer.domElement.style.zIndex = 1;
+        renderer.domElement.style.pointerEvents = 'auto'; // Allow interaction with canvas
+
+        // Stop all pulsing and hide icon when controls are active
+        interactiveGroups.forEach(g => stopGroupPulse(g.id));
+        infoIcon.style.display = 'none';
+
     } else {
+        // --- Scrolling Mode ---
         st.enable();
         controls.enabled = false;
         controls.enableZoom = false;
         renderer.domElement.style.zIndex = -1;
+        renderer.domElement.style.pointerEvents = 'none'; // Ignore canvas for scrolling
+
+        // Resume pulsing for groups that weren't manually stopped
+        startAllPulsing();
     }
 });
 
