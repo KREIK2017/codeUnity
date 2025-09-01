@@ -134,6 +134,34 @@ directionalLight.shadow.camera.near = 0.5;
 directionalLight.shadow.camera.far = 50;
 scene.add(directionalLight);
 
+// --- Pulsing Animation ---
+function startPulsingAnimation() {
+    const allInteractiveObjects = interactiveGroups.flatMap(g => g.foundObjects);
+    if (allInteractiveObjects.length === 0) return;
+
+    const materials = allInteractiveObjects.map(obj => obj.material).filter((v, i, a) => a.indexOf(v) === i); // Unique materials
+
+    materials.forEach(material => {
+        // Ensure emissive property exists and store original
+        if (!material.emissive) {
+            material.emissive = new THREE.Color(0x000000);
+        }
+        material.originalEmissive = material.emissive.clone();
+    });
+
+    const pulseColor = new THREE.Color(0.5, 0.5, 0.5); // A soft white
+
+    gsap.to(materials.map(m => m.emissive), {
+        r: pulseColor.r,
+        g: pulseColor.g,
+        b: pulseColor.b,
+        duration: 1.5,
+        ease: "sine.inOut",
+        repeat: -1,
+        yoyo: true
+    });
+}
+
 // --- Load Model ---
 const loader = new GLTFLoader();
 loader.load(modelUrl, function (gltf) {
@@ -157,6 +185,9 @@ loader.load(modelUrl, function (gltf) {
         }
     });
     scene.add(model);
+
+    // Start the pulsing animation after the model is loaded
+    startPulsingAnimation();
 
 }, undefined, function (error) {
     console.error('An error happened while loading the model:', error);
