@@ -16,7 +16,7 @@ export default defineConfig({
     server: {
         port: 3000,
         open: '/test/index.html' // Вказуємо, яку сторінку відкривати
-        // open: '/day2/index.html'
+            // open: '/day2/index.html'
 
     },
     assetsInclude: ['**/*.glb']
