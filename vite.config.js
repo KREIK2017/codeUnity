@@ -3,20 +3,13 @@ import { resolve } from 'path';
 
 export default defineConfig({
     base: '/CodeUnity/',
+    root: 'src/test',
     build: {
-        outDir: 'dist',
-        rollupOptions: {
-            input: {
-                main: resolve(__dirname, 'src/test/index.html'),
-                // main: resolve(__dirname, 'src/day2/index.html'),
-
-            },
-        },
+        outDir: '../../dist',
     },
     server: {
         port: 3000,
-        open: '/src/test/index.html' // Вказуємо, яку сторінку відкривати
-            // open: '/day2/index.html'
+        open: '/' // Вказуємо, яку сторінку відкривати
 
     },
     assetsInclude: ['**/*.glb']
