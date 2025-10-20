@@ -3,9 +3,8 @@ import { resolve } from 'path';
 
 export default defineConfig({
     base: '/CodeUnity/',
-    root: 'src',
     build: {
-        outDir: '../dist',
+        outDir: 'dist',
         rollupOptions: {
             input: {
                 main: resolve(__dirname, 'src/test/index.html'),
@@ -16,7 +15,7 @@ export default defineConfig({
     },
     server: {
         port: 3000,
-        open: '/test/index.html' // Вказуємо, яку сторінку відкривати
+        open: '/src/test/index.html' // Вказуємо, яку сторінку відкривати
             // open: '/day2/index.html'
 
     },
