@@ -3,7 +3,7 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import modelUrl from '../UnityCode_Island.glb';
+import modelUrl from '../UnityCode_Island1.glb';
 import { setupModelCameraGUI } from './GUI.js';
 import { createFallingCubeScene } from './FallingCube.js';
 
@@ -57,17 +57,17 @@ scene.add(directionalLight);
 // --- Load Model ---
 const loader = new GLTFLoader();
 const dracoLoader = new DRACOLoader();
-dracoLoader.setDecoderPath( './libs/draco/gltf/' );
-loader.setDRACOLoader( dracoLoader );
-loader.load(modelUrl, function (gltf) {
-        const model = gltf.scene;
+dracoLoader.setDecoderPath('./libs/draco/gltf/');
+loader.setDRACOLoader(dracoLoader);
+loader.load(modelUrl, function(gltf) {
+    const model = gltf.scene;
     window.model = model; // Expose for testing
 
     // --- Налаштування моделі (поворот, масштаб, позиція) ---
-    model.rotation.y = 2; 
+    model.rotation.y = 2;
 
     // Traverse the model to enable shadows
-    model.traverse(function (node) {
+    model.traverse(function(node) {
         if (node.isMesh) {
             node.castShadow = true;
             node.receiveShadow = true;
@@ -78,7 +78,7 @@ loader.load(modelUrl, function (gltf) {
     // --- GUI Setup ---
     setupModelCameraGUI(model, camera);
 
-}, undefined, function (error) {
+}, undefined, function(error) {
     console.error('An error happened while loading the model:', error);
 });
 
@@ -128,10 +128,10 @@ function animate() {
     // Плавне слідування камери за кубом
     const cubeWorldPosition = new THREE.Vector3();
     fallingCube.getWorldPosition(cubeWorldPosition);
-    
+
     const targetCameraPosition = cubeWorldPosition.clone().add(cameraOffset);
     camera.position.lerp(targetCameraPosition, CONFIG.CAMERA_FOLLOW_SPEED);
-    
+
     camera.lookAt(cubeWorldPosition);
     renderer.render(scene, camera);
 }
