@@ -12,7 +12,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0 # Fetch all history for LFS
+          fetch-depth: 0 # Fetch all history for LF-S
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
