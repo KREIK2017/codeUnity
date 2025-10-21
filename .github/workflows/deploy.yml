@@ -29,17 +29,8 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Prepare dist for Git LFS
-        run: |
-          git init
-          git lfs install --local
-          echo "*.glb filter=lfs diff=lfs merge=lfs -text" > .gitattributes
-          git add .gitattributes
-          git add assets/*.glb
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git commit -m "Add LFS tracking for generated GLB files"
-        working-directory: ./dist
+      - name: Copy .gitattributes to dist
+        run: cp .gitattributes dist/.gitattributes
 
       - name: "Debug: Inspect dist folder and GLB file"
         run: |
