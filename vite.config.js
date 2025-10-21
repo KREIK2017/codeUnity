@@ -1,10 +1,10 @@
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
+import { viteStaticCopy } from 'vite-plugin-static-copy'; // Import the plugin
 
 export default defineConfig({
     base: '',
     root: 'src/test',
-    publicDir: 'src/test/libs', // Set public directory to include draco files
     build: {
         outDir: '../../dist',
     },
@@ -13,5 +13,15 @@ export default defineConfig({
         open: '/' // Вказуємо, яку сторінку відкривати
 
     },
-    assetsInclude: ['**/*.glb']
+    assetsInclude: ['**/*.glb'],
+    plugins: [ // Add the plugins array
+        viteStaticCopy({
+            targets: [
+                {
+                    src: 'src/test/libs/draco/*', // Source path relative to project root
+                    dest: 'libs/draco' // Destination path relative to build.outDir
+                }
+            ]
+        })
+    ]
 });
