@@ -12,11 +12,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
         with:
-          lfs: true # Ensure Git LFS files are checked out
           fetch-depth: 0 # Fetch all history for LFS
-
-      - name: Git LFS Checkout
-        run: git lfs checkout
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
