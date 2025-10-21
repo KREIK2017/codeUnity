@@ -8,22 +8,9 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write # Added for broader permissions
-      pages: write
-      id-token: write # Required for OIDC
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }} # Explicitly pass the token
-
-      - name: Install Git LFS and pull files
-        run: |
-          git lfs install
-          git config --global credential.helper store
-          echo "https://x-oauth-basic:${{ secrets.GITHUB_TOKEN }}@github.com" > ~/.git-credentials
-          git lfs pull
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
@@ -36,14 +23,9 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Setup Pages
-        uses: actions/configure-pages@v3
-      
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
         with:
-          path: './dist' # Шлях до вашої папки збірки
-
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v3 # Розгортає артефакт на GitHub Pages
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+          lfs: true # Enable Git LFS support
