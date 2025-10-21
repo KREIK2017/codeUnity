@@ -4,6 +4,7 @@ import { resolve } from 'path';
 export default defineConfig({
     base: '',
     root: 'src/test',
+    publicDir: 'src/test/libs', // Set public directory to include draco files
     build: {
         outDir: '../../dist',
     },
