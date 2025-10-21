@@ -23,6 +23,12 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Debug: Inspect dist folder and GLB file
+        run: |
+          ls -lh ./dist/assets/
+          file ./dist/assets/TEST2-optimized-*.glb
+          cat ./dist/assets/TEST2-optimized-*.glb | head -n 5
+
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         with:
