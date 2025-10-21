@@ -29,9 +29,6 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Copy .gitattributes to dist
-        run: cp .gitattributes dist/.gitattributes
-
       - name: "Debug: Inspect dist folder and GLB file"
         run: |
           ls -lh ./dist/assets/
@@ -43,4 +40,3 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist
-          lfs: true
