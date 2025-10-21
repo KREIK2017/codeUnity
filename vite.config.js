@@ -2,7 +2,7 @@ import { defineConfig } from 'vite';
 import { resolve } from 'path';
 
 export default defineConfig({
-    base: '/CodeUnity/',
+    base: '',
     root: 'src/test',
     build: {
         outDir: '../../dist',
@@ -14,5 +14,3 @@ export default defineConfig({
     },
     assetsInclude: ['**/*.glb']
 });
-
-// Temporary change to trigger GitHub Actions deployment
