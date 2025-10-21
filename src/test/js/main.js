@@ -11,7 +11,7 @@ gsap.registerPlugin(ScrollTrigger);
 
 import { CONFIG } from './config.js';
 
-// --- Scene Setup ---
+// --- Scene Setup --- --
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x87ceeb); // Sky blue background
 
