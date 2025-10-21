@@ -3,7 +3,7 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import modelUrl from '../TEST2-optimized.glb';
+import modelUrl from '../UnityCode_Island1.glb';
 import { setupModelCameraGUI } from './GUI.js';
 import { createFallingCubeScene } from './FallingCube.js';
 
