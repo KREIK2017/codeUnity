@@ -18,7 +18,7 @@ export default defineConfig({
         viteStaticCopy({
             targets: [
                 {
-                    src: 'src/test/libs/draco/*', // Source path relative to project root
+                    src: 'libs/draco/*', // Source path relative to Vite root (src/test)
                     dest: 'libs/draco' // Destination path relative to build.outDir
                 }
             ]
