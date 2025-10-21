@@ -14,3 +14,5 @@ export default defineConfig({
     },
     assetsInclude: ['**/*.glb']
 });
+
+// Temporary change to trigger GitHub Actions deployment
