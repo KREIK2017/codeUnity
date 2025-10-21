@@ -23,7 +23,7 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Debug: Inspect dist folder and GLB file
+      - name: "Debug: Inspect dist folder and GLB file"
         run: |
           ls -lh ./dist/assets/
           file ./dist/assets/TEST2-optimized-*.glb
