@@ -65,6 +65,12 @@ const pointLight = new THREE.PointLight(0xffffff, 1, 100); // Color, intensity, 
 pointLight.position.set(0, 5, 0); // Position the point light
 scene.add(pointLight);
 
+// --- Grid Helper ---
+const size = 100;
+const divisions = 100;
+const gridHelper = new THREE.GridHelper(size, divisions, 0x444444, 0x888888);
+scene.add(gridHelper);
+
 // --- Load Model ---
 const loader = new GLTFLoader();
 const dracoLoader = new DRACOLoader();
@@ -76,7 +82,6 @@ loader.load(modelUrl, function(gltf) {
 
     // --- Налаштування моделі (поворот, масштаб, позиція) ---
     model.rotation.y = 2;
-    model.scale.set(0.5, 0.5, 0.5); // Збільшуємо модель в 2 рази
 
     // Traverse the model to enable shadows
     model.traverse(function(node) {
