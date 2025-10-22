@@ -24,13 +24,15 @@ const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerH
 // --- Falling Cube Setup ---
 const { group: fallingCubeGroup, cube: fallingCube } = createFallingCubeScene();
 window.fallingCube = fallingCube; // Expose for testing
-// scene.add(fallingCubeGroup);
+scene.add(fallingCubeGroup);
 
 // Встановлюємо початкову позицію камери відносно куба
-const cubeWorldPosition = new THREE.Vector3();
-fallingCube.getWorldPosition(cubeWorldPosition);
-camera.position.copy(cubeWorldPosition.clone().add(cameraOffset));
-camera.lookAt(cubeWorldPosition);
+// const cubeWorldPosition = new THREE.Vector3();
+// fallingCube.getWorldPosition(cubeWorldPosition);
+// camera.position.copy(cubeWorldPosition.clone().add(cameraOffset));
+// camera.lookAt(cubeWorldPosition);
+camera.position.set(0, 10, 20); // Нова позиція камери
+camera.lookAt(0, 0, 0); // Камера дивиться на початок координат
 
 // --- Renderer Setup ---
 const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
@@ -65,12 +67,6 @@ const pointLight = new THREE.PointLight(0xffffff, 1, 100); // Color, intensity, 
 pointLight.position.set(0, 5, 0); // Position the point light
 scene.add(pointLight);
 
-// --- Grid Helper ---
-const size = 100;
-const divisions = 100;
-const gridHelper = new THREE.GridHelper(size, divisions, 0x444444, 0x888888);
-scene.add(gridHelper);
-
 // --- Load Model ---
 const loader = new GLTFLoader();
 const dracoLoader = new DRACOLoader();
@@ -81,7 +77,7 @@ loader.load(modelUrl, function(gltf) {
     window.model = model; // Expose for testing
 
     // --- Налаштування моделі (поворот, масштаб, позиція) ---
-    model.rotation.y = 2;
+    model.scale.set(0.15, 0.15, 0.15); // Зменшуємо модель до 0.15 рази
 
     // Traverse the model to enable shadows
     model.traverse(function(node) {
@@ -93,7 +89,7 @@ loader.load(modelUrl, function(gltf) {
     scene.add(model);
 
     // --- GUI Setup ---
-    // setupModelCameraGUI(model, camera);
+    setupModelCameraGUI(model, camera);
 
 }, undefined, function(error) {
     console.error('An error happened while loading the model:', error);
