@@ -38,6 +38,7 @@ const renderer = new THREE.WebGLRenderer({ antialias: !isMobile });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(window.devicePixelRatio);
 renderer.shadowMap.enabled = true; // Enable shadows
+renderer.shadowMap.type = THREE.PCFSoftShadowMap; // Додаємо для м'яких тіней
 document.body.appendChild(renderer.domElement);
 
 
@@ -54,10 +55,12 @@ scene.add(hemisphereLight);
 const directionalLight = new THREE.DirectionalLight(0xffffff, 1.5); // Increased intensity
 directionalLight.position.set(5, 10, 7.5);
 directionalLight.castShadow = true;
-directionalLight.shadow.mapSize.width = 5000;
-directionalLight.shadow.mapSize.height = 5000;
+directionalLight.shadow.mapSize.width = 2048;
+directionalLight.shadow.mapSize.height = 2048;
 directionalLight.shadow.camera.near = 0.5;
-directionalLight.shadow.camera.far = 50;
+directionalLight.shadow.camera.far = 100;
+directionalLight.shadow.bias = -0.002;
+directionalLight.shadow.normalBias = 0.05;
 scene.add(directionalLight);
 
 // Point light for localized illumination (e.g., a lamp)
