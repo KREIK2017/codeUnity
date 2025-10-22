@@ -14,7 +14,7 @@ export function createFallingCubeScene() {
     const group = new THREE.Group();
     group.position.y = INITIAL_Y_POSITION;
     group.position.x = -5; // Переміщуємо всю групу вліво
-    const platformGeometry = new THREE.PlaneGeometry(2, 2);
+    const platformGeometry = new THREE.PlaneGeometry(200, 200);
     const platformMaterial = new THREE.MeshStandardMaterial({ color: 0xcccccc });
     const platform = new THREE.Mesh(platformGeometry, platformMaterial);
     platform.rotation.x = -Math.PI / 2; // Робимо її горизонтальною
