@@ -4,7 +4,7 @@ import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import modelUrl from '../UnityCode_Island.glb';
-import { setupModelCameraGUI } from './GUI.js';
+// import { setupModelCameraGUI } from './GUI.js';
 import { createFallingCubeScene } from './FallingCube.js';
 
 gsap.registerPlugin(ScrollTrigger);
