@@ -27,12 +27,10 @@ window.fallingCube = fallingCube; // Expose for testing
 scene.add(fallingCubeGroup);
 
 // Встановлюємо початкову позицію камери відносно куба
-// const cubeWorldPosition = new THREE.Vector3();
-// fallingCube.getWorldPosition(cubeWorldPosition);
-// camera.position.copy(cubeWorldPosition.clone().add(cameraOffset));
-// camera.lookAt(cubeWorldPosition);
-camera.position.set(0, 10, 20); // Нова позиція камери
-camera.lookAt(0, 0, 0); // Камера дивиться на початок координат
+const cubeWorldPosition = new THREE.Vector3();
+fallingCube.getWorldPosition(cubeWorldPosition);
+camera.position.copy(cubeWorldPosition.clone().add(cameraOffset));
+camera.lookAt(cubeWorldPosition);
 
 // --- Renderer Setup ---
 const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
@@ -56,8 +54,8 @@ scene.add(hemisphereLight);
 const directionalLight = new THREE.DirectionalLight(0xffffff, 1.5); // Increased intensity
 directionalLight.position.set(5, 10, 7.5);
 directionalLight.castShadow = true;
-directionalLight.shadow.mapSize.width = 1024;
-directionalLight.shadow.mapSize.height = 1024;
+directionalLight.shadow.mapSize.width = 5000;
+directionalLight.shadow.mapSize.height = 5000;
 directionalLight.shadow.camera.near = 0.5;
 directionalLight.shadow.camera.far = 50;
 scene.add(directionalLight);
@@ -77,7 +75,7 @@ loader.load(modelUrl, function(gltf) {
     window.model = model; // Expose for testing
 
     // --- Налаштування моделі (поворот, масштаб, позиція) ---
-    model.scale.set(0.15, 0.15, 0.15); // Зменшуємо модель до 0.15 рази
+    model.rotation.y = 2;
 
     // Traverse the model to enable shadows
     model.traverse(function(node) {
