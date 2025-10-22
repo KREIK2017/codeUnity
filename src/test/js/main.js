@@ -24,7 +24,7 @@ const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerH
 // --- Falling Cube Setup ---
 const { group: fallingCubeGroup, cube: fallingCube } = createFallingCubeScene();
 window.fallingCube = fallingCube; // Expose for testing
-scene.add(fallingCubeGroup);
+// scene.add(fallingCubeGroup);
 
 // Встановлюємо початкову позицію камери відносно куба
 const cubeWorldPosition = new THREE.Vector3();
@@ -87,7 +87,7 @@ loader.load(modelUrl, function(gltf) {
     scene.add(model);
 
     // --- GUI Setup ---
-    setupModelCameraGUI(model, camera);
+    // setupModelCameraGUI(model, camera);
 
 }, undefined, function(error) {
     console.error('An error happened while loading the model:', error);

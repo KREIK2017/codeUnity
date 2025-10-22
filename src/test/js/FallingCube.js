@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-const INITIAL_Y_POSITION = 0;
+const INITIAL_Y_POSITION = 37;
 
 // Змінні для анімації падіння
 const fallDistance = 35.2; // Як далеко вниз впаде куб
