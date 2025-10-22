@@ -76,7 +76,7 @@ loader.load(modelUrl, function(gltf) {
 
     // --- Налаштування моделі (поворот, масштаб, позиція) ---
     model.rotation.y = 2;
-    model.scale.set(2, 2, 2); // Збільшуємо модель в 2 рази
+    model.scale.set(0.5, 0.5, 0.5); // Збільшуємо модель в 2 рази
 
     // Traverse the model to enable shadows
     model.traverse(function(node) {
