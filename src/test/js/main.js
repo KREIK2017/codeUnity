@@ -3,7 +3,7 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import modelUrl from '../UnityCode_Island1.glb';
+import modelUrl from '../UnityCode_Island02.glb';
 import { setupModelCameraGUI } from './GUI.js';
 import { createFallingCubeScene } from './FallingCube.js';
 
@@ -11,7 +11,7 @@ gsap.registerPlugin(ScrollTrigger);
 
 import { CONFIG } from './config.js';
 
-// --- Scene Setup --- -
+// --- Scene Setup --- 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x87ceeb); // Sky blue background
 
@@ -42,10 +42,16 @@ document.body.appendChild(renderer.domElement);
 
 
 // --- Lighting ---
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+// Ambient light to softly illuminate all objects in the scene equally
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.8); // Increased intensity
 scene.add(ambientLight);
 
-const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+// Hemisphere light for more natural ambient lighting (sky and ground colors)
+const hemisphereLight = new THREE.HemisphereLight(0xb1e1ff, 0xb97a20, 0.7); // Sky color, ground color, intensity
+scene.add(hemisphereLight);
+
+// Directional light to simulate sunlight
+const directionalLight = new THREE.DirectionalLight(0xffffff, 1.5); // Increased intensity
 directionalLight.position.set(5, 10, 7.5);
 directionalLight.castShadow = true;
 directionalLight.shadow.mapSize.width = 1024;
@@ -53,6 +59,11 @@ directionalLight.shadow.mapSize.height = 1024;
 directionalLight.shadow.camera.near = 0.5;
 directionalLight.shadow.camera.far = 50;
 scene.add(directionalLight);
+
+// Point light for localized illumination (e.g., a lamp)
+const pointLight = new THREE.PointLight(0xffffff, 1, 100); // Color, intensity, distance
+pointLight.position.set(0, 5, 0); // Position the point light
+scene.add(pointLight);
 
 // --- Load Model ---
 const loader = new GLTFLoader();
