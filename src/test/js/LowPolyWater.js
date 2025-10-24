@@ -44,7 +44,7 @@ export class LowPolyWater {
         const material = new THREE.MeshPhongMaterial({
             // color: 0x68c3c0, // No longer needed, using vertex colors
             vertexColors: true, // This enables the depth effect
-            flatShading: true,
+            // flatShading: true, // Disabling flat shading for smoother appearance
             transparent: true,
             opacity: 0.7
         });
@@ -52,11 +52,17 @@ export class LowPolyWater {
         this.mesh = new THREE.Mesh(this.geometry, material);
         this.mesh.receiveShadow = true;
 
-        // Create the island mask after the mesh is created and positioned
+        // =================================================================
+        // ПОЧАТОК: ЛОГІКА ХОВАННЯ ХВИЛЬ ПІД ОСТРОВОМ
+        // =================================================================
+
+        // 1. Викликаємо функцію, яка створить "маску" для острова
         this.mesh.updateMatrixWorld(true); // Ensure world matrix is up-to-date
         this._createIslandMask(islandModel);
     }
 
+    // 2. Ось сама функція, яка ховає хвилі.
+    // Вона проходить по всіх вершинах води і перевіряє, чи є над ними модель острова.
     _createIslandMask(islandModel) {
         this.isUnderIsland = new Array(this.geometry.attributes.position.count).fill(false);
         const raycaster = new THREE.Raycaster();
@@ -88,10 +94,14 @@ export class LowPolyWater {
         const vertexCount = positionAttribute.count;
 
         for (let i = 0; i < vertexCount; i++) {
-            // Skip animation if the vertex is under the island
+            // 3. Тут ми використовуємо створену "маску".
+            // Якщо вершина знаходиться під островом, ми пропускаємо її анімацію.
             if (this.isUnderIsland[i]) {
                 continue;
             }
+            // =================================================================
+            // КІНЕЦЬ: ЛОГІКА ХОВАННЯ ХВИЛЬ ПІД ОСТРОВОМ
+            // =================================================================
 
             const waveData = this.waves[i];
 
