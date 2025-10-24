@@ -11,7 +11,7 @@ export class LowPolyWater {
         // Змініть останні два числа, щоб змінити деталізацію води.
         // Більше число = більше полігонів.
         // =================================================================
-        this.geometry = new THREE.PlaneGeometry(1000, 1000, 500, 500);
+        this.geometry = new THREE.PlaneGeometry(1000, 1000, 1000, 1000);
         this.geometry.rotateX(-Math.PI / 2);
 
         const positionAttribute = this.geometry.attributes.position;
@@ -44,7 +44,7 @@ export class LowPolyWater {
         const material = new THREE.MeshPhongMaterial({
             // color: 0x68c3c0, // No longer needed, using vertex colors
             vertexColors: true, // This enables the depth effect
-            // flatShading: true, // Disabling flat shading for smoother appearance
+            flatShading: true, // Re-enabling flat shading as requested
             transparent: true,
             opacity: 0.7
         });
