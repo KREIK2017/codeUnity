@@ -11,7 +11,7 @@ export class LowPolyWater {
         // Змініть останні два числа, щоб змінити деталізацію води.
         // Більше число = більше полігонів.
         // =================================================================
-        this.geometry = new THREE.PlaneGeometry(1500, 1500, 300, 300);
+        this.geometry = new THREE.PlaneGeometry(1500, 1500, 450, 450);
         this.geometry.rotateX(-Math.PI / 2);
 
         const positionAttribute = this.geometry.attributes.position;
@@ -36,7 +36,7 @@ export class LowPolyWater {
             this.waves.push({
                 y: y,
                 ang: Math.random() * Math.PI * 2,
-                amp: 1.5, // Амплітуда
+                amp: 1, // Амплітуда
                 speed: Math.random() * 0.008, // Швидкість
             });
         }
@@ -46,7 +46,7 @@ export class LowPolyWater {
             vertexColors: true, // This enables the depth effect
             flatShading: true,
             transparent: true,
-            opacity: 0.8
+            opacity: 0.7
         });
 
         this.mesh = new THREE.Mesh(this.geometry, material);
