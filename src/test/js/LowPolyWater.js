@@ -36,7 +36,7 @@ export class LowPolyWater {
             this.waves.push({
                 y: y,
                 ang: Math.random() * Math.PI * 2,
-                amp: 5, // Амплітуда
+                amp: 1.5, // Амплітуда
                 speed: Math.random() * 0.008, // Швидкість
             });
         }
@@ -46,7 +46,7 @@ export class LowPolyWater {
             vertexColors: true, // This enables the depth effect
             flatShading: true,
             transparent: true,
-            opacity: 0.9
+            opacity: 0.8
         });
 
         this.mesh = new THREE.Mesh(this.geometry, material);
