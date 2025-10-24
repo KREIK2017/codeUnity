@@ -106,9 +106,6 @@ loader.load(modelUrl, function(gltf) {
     });
     scene.add(model);
 
-    // --- GUI Setup ---
-    setupModelCameraGUI(model, camera);
-
 }, undefined, function(error) {
     console.error('An error happened while loading the model:', error);
 });

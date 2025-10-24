@@ -11,18 +11,20 @@ export class LowPolyWater {
       uniform float u_waves_speed;
 
       varying float v_elevation;
+      varying vec3 v_world_position;
 
       void main() {
         vec4 modelPosition = modelMatrix * vec4(position, 1.0);
 
-        // Simple Gerstner-like waves
-        float elevation = sin(modelPosition.x * u_waves_frequency.x + u_time * u_waves_speed) *
-                         sin(modelPosition.z * u_waves_frequency.y + u_time * u_waves_speed) *
-                         u_waves_elevation;
+        // Waves with a slight rotation to break the grid pattern
+        float wave_x = modelPosition.x * u_waves_frequency.x + u_time * u_waves_speed;
+        float wave_z = modelPosition.z * u_waves_frequency.y + u_time * u_waves_speed;
+        float elevation = sin(wave_x) * sin(wave_z) * u_waves_elevation;
 
         modelPosition.y += elevation;
         
         v_elevation = elevation;
+        v_world_position = modelPosition.xyz;
 
         gl_Position = projectionMatrix * viewMatrix * modelPosition;
       }
@@ -35,11 +37,24 @@ export class LowPolyWater {
       uniform float u_color_multiplier;
 
       varying float v_elevation;
+      varying vec3 v_world_position;
 
       void main() {
+        // Calculate normal for flat shading
+        vec3 normal = normalize(cross(dFdx(v_world_position), dFdy(v_world_position)));
+        
+        // Simple directional light
+        vec3 light_direction = normalize(vec3(0.8, 0.7, 0.2));
+        float light_intensity = max(0.25, dot(normal, light_direction));
+
+        // Mix color based on depth
         float mix_strength = (v_elevation + u_color_offset) * u_color_multiplier;
         vec3 color = mix(u_deep_color, u_shallow_color, mix_strength);
-        gl_FragColor = vec4(color, 1.0);
+
+        // Apply lighting
+        vec3 final_color = color * light_intensity;
+
+        gl_FragColor = vec4(final_color, 1.0);
       }
     `;
 
@@ -62,7 +77,6 @@ export class LowPolyWater {
         u_color_offset: { value: 0.25 },
         u_color_multiplier: { value: 2.0 }
       },
-      flatShading: true, // This is key for the low-poly look
     });
 
     // Create the mesh
