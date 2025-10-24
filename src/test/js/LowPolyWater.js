@@ -1,55 +1,80 @@
 import * as THREE from 'three';
 
 export class LowPolyWater {
-  constructor() {
-    this.waves = [];
-    
-    // Create a standard, indexed PlaneGeometry. This will keep the surface continuous.
-    this.geometry = new THREE.PlaneGeometry(1500, 1500, 50, 50);
-    this.geometry.rotateX(-Math.PI / 2);
+    constructor() {
+        this.waves = [];
+        this.deepColor = new THREE.Color('#005c7f');
+        this.shallowColor = new THREE.Color('#00bfff');
 
-    const positionAttribute = this.geometry.attributes.position;
-    const vertexCount = positionAttribute.count;
+        // =================================================================
+        // 1. КІЛЬКІСТЬ ПОЛІГОНІВ
+        // Змініть останні два числа, щоб змінити деталізацію води.
+        // Більше число = більше полігонів.
+        // =================================================================
+        this.geometry = new THREE.PlaneGeometry(1500, 1500, 150, 150);
+        this.geometry.rotateX(-Math.PI / 2);
 
-    // Create wave data for each unique vertex.
-    for (let i = 0; i < vertexCount; i++) {
-      const y = positionAttribute.getY(i);
+        const positionAttribute = this.geometry.attributes.position;
+        const vertexCount = positionAttribute.count;
 
-      this.waves.push({
-        y: y,
-        ang: Math.random() * Math.PI * 2,
-        amp: 2 + Math.random() * 5, // Wave amplitude
-        speed: 0.016 + Math.random() * 0.022,
-      });
+        // Initialize color attribute
+        const colors = [];
+        for (let i = 0; i < vertexCount; i++) {
+            colors.push(this.shallowColor.r, this.shallowColor.g, this.shallowColor.b);
+        }
+        this.geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+
+        // Create wave data for each unique vertex.
+        for (let i = 0; i < vertexCount; i++) {
+            const y = positionAttribute.getY(i);
+
+            // =================================================================
+            // 2. ПАРАМЕТРИ ХВИЛЬ
+            // 'amp': амплітуда (висота) хвилі.
+            // 'speed': швидкість руху хвилі.
+            // =================================================================
+            this.waves.push({
+                y: y,
+                ang: Math.random() * Math.PI * 2,
+                amp: 2 + Math.random() * 3, // Амплітуда
+                speed: 0.008 + Math.random() * 0.005, // Швидкість
+            });
+        }
+
+        const material = new THREE.MeshPhongMaterial({
+            // color: 0x68c3c0, // No longer needed, using vertex colors
+            vertexColors: true, // This enables the depth effect
+            flatShading: true,
+            transparent: true,
+            opacity: 0.9
+        });
+
+        this.mesh = new THREE.Mesh(this.geometry, material);
+        this.mesh.receiveShadow = true;
     }
 
-    const material = new THREE.MeshPhongMaterial({
-      color: 0x68c3c0,
-      flatShading: true, // This will work on a continuous geometry.
-      transparent: true,
-      opacity: 0.9
-    });
+    update() {
+        const positionAttribute = this.geometry.attributes.position;
+        const colorAttribute = this.geometry.attributes.color;
+        const vertexCount = positionAttribute.count;
 
-    this.mesh = new THREE.Mesh(this.geometry, material);
-    this.mesh.receiveShadow = true;
-  }
+        for (let i = 0; i < vertexCount; i++) {
+            const waveData = this.waves[i];
 
-  update() {
-    const positionAttribute = this.geometry.attributes.position;
-    const vertexCount = positionAttribute.count;
+            waveData.ang += waveData.speed;
 
-    for (let i = 0; i < vertexCount; i++) {
-      const waveData = this.waves[i];
-      
-      waveData.ang += waveData.speed;
+            const waveSin = Math.sin(waveData.ang);
+            const newY = waveData.y + waveSin * waveData.amp;
+            positionAttribute.setY(i, newY);
 
-      // Calculate new Y position. The original Y position is stored in waveData.y
-      const newY = waveData.y + Math.sin(waveData.ang) * waveData.amp;
-      positionAttribute.setY(i, newY);
+            // 3. ЕФЕКТ ГЛИБИНИ
+            // Interpolate color based on wave height (waveSin is from -1 to 1)
+            const normalizedHeight = (waveSin + 1) / 2; // map to 0-1 range
+            const mixedColor = this.deepColor.clone().lerp(this.shallowColor, normalizedHeight);
+            colorAttribute.setXYZ(i, mixedColor.r, mixedColor.g, mixedColor.b);
+        }
+
+        positionAttribute.needsUpdate = true;
+        colorAttribute.needsUpdate = true; // Important for color animation
     }
-
-    // We must NOT recompute normals, as that would smooth the lighting.
-    // The flatShading property on the material is enough.
-    positionAttribute.needsUpdate = true;
-  }
 }
