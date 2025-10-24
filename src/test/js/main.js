@@ -80,10 +80,8 @@ const pointLight = new THREE.PointLight(0xffffff, 1, 100); // Color, intensity, 
 pointLight.position.set(0, 5, 0); // Position the point light
 scene.add(pointLight);
 
-// --- Low Poly Water ---
-const water = new LowPolyWater();
-water.mesh.position.y = 0.7; // Adjust this value to set the water level
-scene.add(water.mesh);
+// Declare water variable, it will be initialized after the model loads
+let water;
 
 // --- Load Model ---
 const loader = new GLTFLoader();
@@ -105,6 +103,13 @@ loader.load(modelUrl, function(gltf) {
         }
     });
     scene.add(model);
+
+    // --- Low Poly Water ---
+    // Now that the model is loaded, we can create the water
+    // and pass the model to it for intersection checks.
+    water = new LowPolyWater(model);
+    water.mesh.position.y = 0.7; // Adjust this value to set the water level
+    scene.add(water.mesh);
 
 }, undefined, function(error) {
     console.error('An error happened while loading the model:', error);
@@ -157,8 +162,10 @@ function animate() {
 
     const elapsedTime = clock.getElapsedTime();
 
-    // Update water
-    water.update(elapsedTime);
+    // Update water only if it has been initialized
+    if (water) {
+        water.update(elapsedTime);
+    }
 
     // Плавне слідування камери за кубом
     const cubeWorldPosition = new THREE.Vector3();

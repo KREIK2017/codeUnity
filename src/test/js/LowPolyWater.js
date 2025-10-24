@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 
 export class LowPolyWater {
-    constructor() {
+    constructor(islandModel) {
         this.waves = [];
         this.deepColor = new THREE.Color('#005c7f');
         this.shallowColor = new THREE.Color('#00bfff');
@@ -51,6 +51,35 @@ export class LowPolyWater {
 
         this.mesh = new THREE.Mesh(this.geometry, material);
         this.mesh.receiveShadow = true;
+
+        // Create the island mask after the mesh is created and positioned
+        this.mesh.updateMatrixWorld(true); // Ensure world matrix is up-to-date
+        this._createIslandMask(islandModel);
+    }
+
+    _createIslandMask(islandModel) {
+        this.isUnderIsland = new Array(this.geometry.attributes.position.count).fill(false);
+        const raycaster = new THREE.Raycaster();
+        const down = new THREE.Vector3(0, -1, 0);
+        const vertex = new THREE.Vector3();
+
+        const positionAttribute = this.geometry.attributes.position;
+        const vertexCount = positionAttribute.count;
+
+        for (let i = 0; i < vertexCount; i++) {
+            vertex.fromBufferAttribute(positionAttribute, i);
+
+            // Transform vertex to world coordinates
+            vertex.applyMatrix4(this.mesh.matrixWorld);
+
+            raycaster.set(vertex, down);
+
+            const intersections = raycaster.intersectObject(islandModel, true);
+
+            if (intersections.length > 0) {
+                this.isUnderIsland[i] = true;
+            }
+        }
     }
 
     update() {
@@ -59,6 +88,11 @@ export class LowPolyWater {
         const vertexCount = positionAttribute.count;
 
         for (let i = 0; i < vertexCount; i++) {
+            // Skip animation if the vertex is under the island
+            if (this.isUnderIsland[i]) {
+                continue;
+            }
+
             const waveData = this.waves[i];
 
             waveData.ang += waveData.speed;
