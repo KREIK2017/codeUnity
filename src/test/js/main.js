@@ -82,7 +82,7 @@ scene.add(pointLight);
 
 // --- Low Poly Water ---
 const water = new LowPolyWater();
-water.mesh.position.y = -5; // Adjust this value to set the water level
+water.mesh.position.y = -2; // Adjust this value to set the water level
 scene.add(water.mesh);
 
 // --- Load Model ---

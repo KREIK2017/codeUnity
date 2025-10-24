@@ -36,7 +36,7 @@ export class LowPolyWater {
             this.waves.push({
                 y: y,
                 ang: Math.random() * Math.PI * 2,
-                amp: 1, // Амплітуда
+                amp: 0.7, // Амплітуда
                 speed: Math.random() * 0.008, // Швидкість
             });
         }
