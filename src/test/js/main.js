@@ -9,6 +9,7 @@ import { createFallingCubeScene } from './FallingCube.js';
 
 gsap.registerPlugin(ScrollTrigger);
 
+import { LowPolyWater } from './LowPolyWater.js';
 import { CONFIG } from './config.js';
 
 // --- Scene Setup --- 
@@ -71,13 +72,18 @@ directionalLight.shadow.normalBias = 0.05;
 scene.add(directionalLight);
 
 // --- Для перевірки ---
-const helper = new THREE.CameraHelper(directionalLight.shadow.camera);
-scene.add(helper);
+// const helper = new THREE.CameraHelper(directionalLight.shadow.camera);
+// scene.add(helper);
 
 // Point light for localized illumination (e.g., a lamp)
 const pointLight = new THREE.PointLight(0xffffff, 1, 100); // Color, intensity, distance
 pointLight.position.set(0, 5, 0); // Position the point light
 scene.add(pointLight);
+
+// --- Low Poly Water ---
+const water = new LowPolyWater();
+water.mesh.position.y = -5; // Adjust this value to set the water level
+scene.add(water.mesh);
 
 // --- Load Model ---
 const loader = new GLTFLoader();
@@ -147,8 +153,15 @@ tl.to(fallingCube.rotation, {
 }, "<");
 
 // --- Animation Loop ---
+const clock = new THREE.Clock();
+
 function animate() {
     requestAnimationFrame(animate);
+
+    const elapsedTime = clock.getElapsedTime();
+
+    // Update water
+    water.update(elapsedTime);
 
     // Плавне слідування камери за кубом
     const cubeWorldPosition = new THREE.Vector3();
