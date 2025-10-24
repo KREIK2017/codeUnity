@@ -1,91 +1,66 @@
-
 import * as THREE from 'three';
 
+// This class is an adaptation of the user-provided code to work as a component
+// within the existing project structure and with modern Three.js (BufferGeometry).
 export class LowPolyWater {
   constructor() {
-    // Define the shaders
-    const vertexShader = `
-      uniform float u_time;
-      uniform float u_waves_elevation;
-      uniform vec2 u_waves_frequency;
-      uniform float u_waves_speed;
+    this.waves = [];
+    
+    // 1. Create Geometry and Material (from user's `creatWaves`)
+    const geometry = new THREE.PlaneGeometry(1500, 1500, 40, 40);
+    geometry.rotateX(-Math.PI / 2);
 
-      varying float v_elevation;
-      varying vec3 v_world_position;
+    // We need to work with a non-indexed geometry to ensure flat shading works correctly
+    // when vertices are manipulated.
+    this.geometry = geometry.toNonIndexed();
 
-      void main() {
-        vec4 modelPosition = modelMatrix * vec4(position, 1.0);
+    const positionAttribute = this.geometry.attributes.position;
+    const vertexCount = positionAttribute.count;
 
-        // Waves with a slight rotation to break the grid pattern
-        float wave_x = modelPosition.x * u_waves_frequency.x + u_time * u_waves_speed;
-        float wave_z = modelPosition.z * u_waves_frequency.y + u_time * u_waves_speed;
-        float elevation = sin(wave_x) * sin(wave_z) * u_waves_elevation;
+    for (let i = 0; i < vertexCount; i++) {
+      const x = positionAttribute.getX(i);
+      const y = positionAttribute.getY(i);
+      const z = positionAttribute.getZ(i);
 
-        modelPosition.y += elevation;
-        
-        v_elevation = elevation;
-        v_world_position = modelPosition.xyz;
+      this.waves.push({
+        x: x,
+        y: y,
+        z: z,
+        ang: Math.random() * Math.PI * 2,
+        amp: 3 + Math.random() * 7, // Wave amplitude
+        speed: 0.016 + Math.random() * 0.032,
+      });
+    }
 
-        gl_Position = projectionMatrix * viewMatrix * modelPosition;
-      }
-    `;
-
-    const fragmentShader = `
-      uniform vec3 u_deep_color;
-      uniform vec3 u_shallow_color;
-      uniform float u_color_offset;
-      uniform float u_color_multiplier;
-
-      varying float v_elevation;
-      varying vec3 v_world_position;
-
-      void main() {
-        // Calculate normal for flat shading
-        vec3 normal = normalize(cross(dFdx(v_world_position), dFdy(v_world_position)));
-        
-        // Simple directional light
-        vec3 light_direction = normalize(vec3(0.8, 0.7, 0.2));
-        float light_intensity = max(0.25, dot(normal, light_direction));
-
-        // Mix color based on depth
-        float mix_strength = (v_elevation + u_color_offset) * u_color_multiplier;
-        vec3 color = mix(u_deep_color, u_shallow_color, mix_strength);
-
-        // Apply lighting
-        vec3 final_color = color * light_intensity;
-
-        gl_FragColor = vec4(final_color, 1.0);
-      }
-    `;
-
-    // Create the geometry
-    this.geometry = new THREE.PlaneGeometry(2000, 2000, 100, 100);
-    this.geometry.rotateX(-Math.PI / 2);
-
-    // Create the material
-    this.material = new THREE.ShaderMaterial({
-      vertexShader: vertexShader,
-      fragmentShader: fragmentShader,
-      uniforms: {
-        u_time: { value: 0 },
-        u_waves_elevation: { value: 5 }, // Wave height
-        u_waves_frequency: { value: new THREE.Vector2(0.01, 0.01) }, // Wave "tiling"
-        u_waves_speed: { value: 0.05 }, // Wave speed
-
-        u_deep_color: { value: new THREE.Color('#005c7f') }, // Dark blue
-        u_shallow_color: { value: new THREE.Color('#00bfff') }, // Lighter blue
-        u_color_offset: { value: 0.25 },
-        u_color_multiplier: { value: 2.0 }
-      },
+    const material = new THREE.MeshPhongMaterial({
+      color: 0x68c3c0,
+      flatShading: true, // This works on MeshPhongMaterial
+      transparent: true,
+      opacity: 0.9
     });
 
-    // Create the mesh
-    this.mesh = new THREE.Mesh(this.geometry, this.material);
+    this.mesh = new THREE.Mesh(this.geometry, material);
     this.mesh.receiveShadow = true;
   }
 
-  // Method to update time for animation
-  update(elapsedTime) {
-    this.material.uniforms.u_time.value = elapsedTime * 0.1; // Slow down time a bit
+  // 2. Animate waves (from user's `moveWaves`, adapted for BufferGeometry)
+  update() {
+    const positionAttribute = this.geometry.attributes.position;
+    const vertexCount = positionAttribute.count;
+
+    for (let i = 0; i < vertexCount; i++) {
+      const waveData = this.waves[i];
+      
+      // Update the angle
+      waveData.ang += waveData.speed;
+
+      // Calculate new Y position based on sine wave
+      const newY = waveData.y + Math.sin(waveData.ang) * waveData.amp;
+      positionAttribute.setY(i, newY);
+    }
+
+    // Important: We need to recompute normals for flat shading to work correctly
+    this.geometry.computeVertexNormals();
+    positionAttribute.needsUpdate = true; // Mark the attribute as needing an update
   }
 }
