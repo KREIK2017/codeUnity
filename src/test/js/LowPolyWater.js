@@ -11,7 +11,7 @@ export class LowPolyWater {
         // Змініть останні два числа, щоб змінити деталізацію води.
         // Більше число = більше полігонів.
         // =================================================================
-        this.geometry = new THREE.PlaneGeometry(1500, 1500, 450, 450);
+        this.geometry = new THREE.PlaneGeometry(1000, 1000, 500, 500);
         this.geometry.rotateX(-Math.PI / 2);
 
         const positionAttribute = this.geometry.attributes.position;
