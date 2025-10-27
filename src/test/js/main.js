@@ -33,7 +33,7 @@ const cameraOffset = CONFIG.CAMERA_OFFSET;
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
 // --- Falling Cube Setup ---
-const { group: fallingCubeGroup, cube: fallingCube } = createFallingCubeScene();
+const { group: fallingCubeGroup, cube: fallingCube } = createFallingCubeScene(-16.2, 5);
 window.fallingCube = fallingCube; // Expose for testing
 scene.add(fallingCubeGroup);
 
@@ -76,19 +76,19 @@ function guiChanged() {
 
     sun.setFromSphericalCoords(1, phi, theta);
 
-        uniforms[ 'sunPosition' ].value.copy( sun );
+    uniforms['sunPosition'].value.copy(sun);
 
-    
 
-        // Update directional light position based on sun
 
-        directionalLight.position.copy(sun).multiplyScalar(50);
+    // Update directional light position based on sun
 
-    
+    directionalLight.position.copy(sun).multiplyScalar(50);
 
-        renderer.toneMappingExposure = effectController.exposure;
 
-        renderer.render( scene, camera );
+
+    renderer.toneMappingExposure = effectController.exposure;
+
+    renderer.render(scene, camera);
 
 }
 
@@ -168,6 +168,12 @@ loader.load(modelUrl, function(gltf) {
         }
     });
     scene.add(model);
+
+    const modelFolder = gui.addFolder('Island Model');
+    modelFolder.add(model.position, 'x', -50, 50, 0.1).name('Model X');
+    modelFolder.add(model.position, 'y', -50, 50, 0.1).name('Model Y');
+    modelFolder.add(model.position, 'z', -50, 50, 0.1).name('Model Z');
+    modelFolder.open();
 
     // --- Low Poly Water ---
     // Now that the model is loaded, we can create the water
