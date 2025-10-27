@@ -45,7 +45,7 @@ camera.lookAt(cubeWorldPosition);
 
 // --- Renderer Setup ---
 const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-const renderer = new THREE.WebGLRenderer({ antialias: !isMobile });
+const renderer = new THREE.WebGLRenderer({ antialias: !isMobile, logarithmicDepthBuffer: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(window.devicePixelRatio);
 renderer.shadowMap.enabled = true; // Enable shadows
@@ -169,11 +169,7 @@ loader.load(modelUrl, function(gltf) {
     });
     scene.add(model);
 
-    const modelFolder = gui.addFolder('Island Model');
-    modelFolder.add(model.position, 'x', -50, 50, 0.1).name('Model X');
-    modelFolder.add(model.position, 'y', -50, 50, 0.1).name('Model Y');
-    modelFolder.add(model.position, 'z', -50, 50, 0.1).name('Model Z');
-    modelFolder.open();
+
 
     // --- Low Poly Water ---
     // Now that the model is loaded, we can create the water
