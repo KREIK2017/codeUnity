@@ -3,18 +3,28 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { Sky } from 'three/examples/jsm/objects/Sky.js';
 import modelUrl from '../UnityCode_Island.glb';
 // import { setupModelCameraGUI } from './GUI.js';
 import { createFallingCubeScene } from './FallingCube.js';
+import { GUI } from 'lil-gui';
 
 gsap.registerPlugin(ScrollTrigger);
 
 import { LowPolyWater } from './LowPolyWater.js';
 import { CONFIG } from './config.js';
 
+let directionalLight; // Declare directionalLight here
+
 // --- Scene Setup --- 
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x87ceeb); // Sky blue background
+
+// Skybox
+const sky = new Sky();
+sky.scale.setScalar(450000);
+scene.add(sky);
+
+const sun = new THREE.Vector3();
 
 // Визначаємо, на якій відстані від куба буде камера
 const cameraOffset = CONFIG.CAMERA_OFFSET;
@@ -40,8 +50,61 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(window.devicePixelRatio);
 renderer.shadowMap.enabled = true; // Enable shadows
 renderer.shadowMap.type = THREE.PCFSoftShadowMap; // Додаємо для м'яких тіней
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
 document.body.appendChild(renderer.domElement);
 
+const effectController = {
+    turbidity: 10,
+    rayleigh: 3,
+    mieCoefficient: 0.005,
+    mieDirectionalG: 0.7,
+    elevation: 50,
+    azimuth: 45,
+    exposure: 0.5
+};
+
+function guiChanged() {
+
+    const uniforms = sky.material.uniforms;
+    uniforms['turbidity'].value = effectController.turbidity;
+    uniforms['rayleigh'].value = effectController.rayleigh;
+    uniforms['mieCoefficient'].value = effectController.mieCoefficient;
+    uniforms['mieDirectionalG'].value = effectController.mieDirectionalG;
+
+    const phi = THREE.MathUtils.degToRad(90 - effectController.elevation);
+    const theta = THREE.MathUtils.degToRad(effectController.azimuth);
+
+    sun.setFromSphericalCoords(1, phi, theta);
+
+        uniforms[ 'sunPosition' ].value.copy( sun );
+
+    
+
+        // Update directional light position based on sun
+
+        directionalLight.position.copy(sun).multiplyScalar(50);
+
+    
+
+        renderer.toneMappingExposure = effectController.exposure;
+
+        renderer.render( scene, camera );
+
+}
+
+
+
+// --- GUI ---
+const gui = new GUI();
+const skyFolder = gui.addFolder('Sky');
+skyFolder.add(effectController, 'turbidity', 0.0, 20.0, 0.1).onChange(guiChanged);
+skyFolder.add(effectController, 'rayleigh', 0.0, 4.0, 0.001).onChange(guiChanged);
+skyFolder.add(effectController, 'mieCoefficient', 0.0, 0.1, 0.001).onChange(guiChanged);
+skyFolder.add(effectController, 'mieDirectionalG', 0.0, 1.0, 0.001).onChange(guiChanged);
+skyFolder.add(effectController, 'elevation', 0, 90, 0.1).onChange(guiChanged);
+skyFolder.add(effectController, 'azimuth', 0, 360, 0.1).onChange(guiChanged);
+skyFolder.add(effectController, 'exposure', 0.0, 1.0, 0.0001).onChange(guiChanged);
+skyFolder.open();
 
 // --- Lighting ---
 // Ambient light to softly illuminate all objects in the scene equally
@@ -52,8 +115,8 @@ scene.add(ambientLight);
 const hemisphereLight = new THREE.HemisphereLight(0xb1e1ff, 0xb97a20, 0.7); // Sky color, ground color, intensity
 scene.add(hemisphereLight);
 
-const directionalLight = new THREE.DirectionalLight(0xffffff, 1.5);
-directionalLight.position.set(30, 50, 30);
+directionalLight = new THREE.DirectionalLight(0xffffff, 3);
+directionalLight.position.copy(sun).multiplyScalar(50);
 directionalLight.target.position.set(0, 0, 0);
 scene.add(directionalLight.target);
 
@@ -70,6 +133,8 @@ directionalLight.shadow.bias = -0.002;
 directionalLight.shadow.normalBias = 0.05;
 
 scene.add(directionalLight);
+
+guiChanged(); // Call guiChanged() after directionalLight is initialized
 
 // --- Для перевірки ---
 // const helper = new THREE.CameraHelper(directionalLight.shadow.camera);

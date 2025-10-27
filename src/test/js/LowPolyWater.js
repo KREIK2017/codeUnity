@@ -3,7 +3,7 @@ import * as THREE from 'three';
 export class LowPolyWater {
     constructor(islandModel) {
         this.waves = [];
-        this.deepColor = new THREE.Color('#005c7f');
+        this.deepColor = new THREE.Color('#00a1d6');
         this.shallowColor = new THREE.Color('#00bfff');
 
         // =================================================================
@@ -37,7 +37,7 @@ export class LowPolyWater {
                 y: y,
                 ang: Math.random() * Math.PI * 2,
                 amp: 0.3, // Амплітуда
-                speed: Math.random() * 0.008, // Швидкість
+                speed: Math.random() * 0.02, // Швидкість
             });
         }
 
