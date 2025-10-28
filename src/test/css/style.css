@@ -17,7 +17,37 @@ canvas {
     top: 0;
     left: 0;
     outline: none;
-    z-index: -1;
+    z-index: 0; /* Changed from -1 to 0 */
     width: 100%;
     height: 100%;
+}
+
+.navigation-arrows {
+    display: none; /* Initially hidden */
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 100;
+    width: 200px;
+    justify-content: space-between;
+}
+
+.arrow {
+    width: 60px;
+    height: 60px;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 30px;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.2s;
+}
+
+.arrow:hover {
+    background-color: rgba(0, 0, 0, 0.8);
 }
