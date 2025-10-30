@@ -114,16 +114,54 @@ skyFolder.add(effectController, 'azimuth', 0, 360, 0.1).onChange(guiChanged);
 skyFolder.add(effectController, 'exposure', 0.0, 1.0, 0.0001).onChange(guiChanged);
 skyFolder.open();
 
-// --- Interactive Curve Editor ---
+// --- Interactive Curve Editor (Multi-Segment) ---
 const curveEditor = {
-    points: {
-        p0: new THREE.Vector3(-10, 1.75, 5), // Anchor A
-        h0: new THREE.Vector3(-3.5, 3.9, 6), // Handle for A
-        h1: new THREE.Vector3(-4.6, 3, 11.64), // Handle for B
-        p1: new THREE.Vector3(1, 4, 11.5) // Anchor B
-    },
-    visuals: {},
-    curve: null,
+    segments: [ // Array to hold multiple curve segments
+        {
+            p0: new THREE.Vector3(-10, 1.75, 5), // Anchor A (will be updated to landing spot)
+            h0: new THREE.Vector3(-3.5, 3.9, 6), // Handle for A
+            h1: new THREE.Vector3(-4.6, 3, 11.64), // Handle for B
+            p1: new THREE.Vector3(1, 4, 11.5) // Anchor B
+        },
+        {
+            // Placeholder for the second segment
+            p0: new THREE.Vector3(1, 4, 11.5), // Anchor B (from previous segment)
+            h0: new THREE.Vector3(12, 4.5, 12.5), // Handle for B
+            h1: new THREE.Vector3(5.5, 3.5, 10.12), // Handle for C
+            p1: new THREE.Vector3(7, 3.6, 3) // Anchor C
+        },
+        {
+            // START of W-shape path (Segment 3)
+            p0: new THREE.Vector3(7, 3.6, 3), // Anchor C (Point 3)
+            h0: new THREE.Vector3(6.8, 3.5, 1.96),
+            h1: new THREE.Vector3(5.8, 3.5, -0.36),
+            p1: new THREE.Vector3(5.44, 3.6, -0.96) // Anchor W1
+        },
+        {
+            // W-shape path (Segment 4)
+            p0: new THREE.Vector3(5.44, 3.6, -0.96), // Anchor W1
+            h0: new THREE.Vector3(5.2, 3.3, -4),
+            h1: new THREE.Vector3(4.7, 3.2, -5),
+            p1: new THREE.Vector3(3.5, 3.5, -7) // Anchor W2
+        },
+        {
+            // END of W-shape path (Segment 5)
+            p0: new THREE.Vector3(3.5, 3.5, -7), // Anchor W2
+            h0: new THREE.Vector3(1, 3.3, -8.7),
+            h1: new THREE.Vector3(-1.5, 3.8, -6.7),
+            p1: new THREE.Vector3(-4, 4.3, -9) // Anchor D (Point 4)
+        },
+        {
+            // Segment 6
+            p0: new THREE.Vector3(-4, 4.3, -9),
+            h0: new THREE.Vector3(-10.8, 5.5, -9.5),
+            h1: new THREE.Vector3(-10, 2.58, 1.9),
+            p1: new THREE.Vector3(-10, 1.75, 5)
+        }
+
+    ],
+    visuals: [], // Array to hold visuals for each segment
+    curvePath: null, // Now a CurvePath
     curveLine: null
 };
 
@@ -131,43 +169,48 @@ function createCurveEditor() {
     const sphereGeo = new THREE.SphereGeometry(0.25, 16, 16);
     const handleGeo = new THREE.SphereGeometry(0.15, 16, 16);
 
-    // Create visual meshes
-    curveEditor.visuals.p0 = new THREE.Mesh(sphereGeo, new THREE.MeshBasicMaterial({ color: 0x00ff00 }));
-    curveEditor.visuals.p1 = new THREE.Mesh(sphereGeo, new THREE.MeshBasicMaterial({ color: 0x00ff00 }));
-    curveEditor.visuals.h0 = new THREE.Mesh(handleGeo, new THREE.MeshBasicMaterial({ color: 0xff0000 }));
-    curveEditor.visuals.h1 = new THREE.Mesh(handleGeo, new THREE.MeshBasicMaterial({ color: 0xff0000 }));
+    // Clear existing visuals if any
+    curveEditor.visuals.forEach(segmentVisuals => {
+        Object.values(segmentVisuals).forEach(v => scene.remove(v));
+    });
+    curveEditor.visuals = [];
 
-    // Position them
-    curveEditor.visuals.p0.position.copy(curveEditor.points.p0);
-    curveEditor.visuals.p1.position.copy(curveEditor.points.p1);
-    curveEditor.visuals.h0.position.copy(curveEditor.points.h0);
-    curveEditor.visuals.h1.position.copy(curveEditor.points.h1);
+    curveEditor.segments.forEach((segment, segIndex) => {
+        const segmentVisuals = {};
+        segmentVisuals.p0 = new THREE.Mesh(sphereGeo, new THREE.MeshBasicMaterial({ color: 0x00ff00 }));
+        segmentVisuals.p1 = new THREE.Mesh(sphereGeo, new THREE.MeshBasicMaterial({ color: 0x00ff00 }));
+        segmentVisuals.h0 = new THREE.Mesh(handleGeo, new THREE.MeshBasicMaterial({ color: 0xff0000 }));
+        segmentVisuals.h1 = new THREE.Mesh(handleGeo, new THREE.MeshBasicMaterial({ color: 0xff0000 }));
 
-    // Add to scene
-    Object.values(curveEditor.visuals).forEach(v => scene.add(v));
+        segmentVisuals.p0.position.copy(segment.p0);
+        segmentVisuals.p1.position.copy(segment.p1);
+        segmentVisuals.h0.position.copy(segment.h0);
+        segmentVisuals.h1.position.copy(segment.h1);
 
-    // Create the curve and its line
+        Object.values(segmentVisuals).forEach(v => scene.add(v));
+        curveEditor.visuals.push(segmentVisuals);
+    });
+    console.log('curveEditor.visuals after population:', curveEditor.visuals);
+
     updateCurve();
 }
 
 function updateCurve() {
-    // 1. Update the curve object
-    if (!curveEditor.curve) {
-        curveEditor.curve = new THREE.CubicBezierCurve3(
-            curveEditor.points.p0,
-            curveEditor.points.h0,
-            curveEditor.points.h1,
-            curveEditor.points.p1
-        );
+    // 1. Update the curve path object
+    if (!curveEditor.curvePath) {
+        curveEditor.curvePath = new THREE.CurvePath();
     } else {
-        curveEditor.curve.v0.copy(curveEditor.points.p0);
-        curveEditor.curve.v1.copy(curveEditor.points.h0);
-        curveEditor.curve.v2.copy(curveEditor.points.h1);
-        curveEditor.curve.v3.copy(curveEditor.points.p1);
+        // Clear existing curves from the path
+        curveEditor.curvePath.curves = [];
     }
 
+    curveEditor.segments.forEach(segment => {
+        const curve = new THREE.CubicBezierCurve3(segment.p0, segment.h0, segment.h1, segment.p1);
+        curveEditor.curvePath.add(curve);
+    });
+
     // 2. Update the visual line
-    const points = curveEditor.curve.getPoints(50);
+    const points = curveEditor.curvePath.getPoints(50 * curveEditor.segments.length); // More points for longer path
     const geometry = new THREE.BufferGeometry().setFromPoints(points);
 
     if (!curveEditor.curveLine) {
@@ -183,25 +226,29 @@ function updateCurve() {
 function setupCurveGUI() {
     const editorFolder = gui.addFolder('Curve Editor');
 
-    const p0 = editorFolder.addFolder('Start Point (Green)');
-    p0.add(curveEditor.points.p0, 'x', -20, 20).onChange(updateCurve);
-    p0.add(curveEditor.points.p0, 'y', -10, 10).onChange(updateCurve);
-    p0.add(curveEditor.points.p0, 'z', -20, 20).onChange(updateCurve);
+    curveEditor.segments.forEach((segment, segIndex) => {
+        const segmentFolder = editorFolder.addFolder(`Segment ${segIndex + 1}`);
 
-    const h0 = editorFolder.addFolder('Handle 1 (Red)');
-    h0.add(curveEditor.points.h0, 'x', -20, 20).onChange(updateCurve);
-    h0.add(curveEditor.points.h0, 'y', -10, 10).onChange(updateCurve);
-    h0.add(curveEditor.points.h0, 'z', -20, 20).onChange(updateCurve);
+        const p0 = segmentFolder.addFolder('Start Point (Green)');
+        p0.add(segment.p0, 'x', -20, 20).onChange(updateCurve);
+        p0.add(segment.p0, 'y', -10, 10).onChange(updateCurve);
+        p0.add(segment.p0, 'z', -20, 20).onChange(updateCurve);
 
-    const h1 = editorFolder.addFolder('Handle 2 (Red)');
-    h1.add(curveEditor.points.h1, 'x', -20, 20).onChange(updateCurve);
-    h1.add(curveEditor.points.h1, 'y', -10, 10).onChange(updateCurve);
-    h1.add(curveEditor.points.h1, 'z', -20, 20).onChange(updateCurve);
+        const h0 = segmentFolder.addFolder('Handle 1 (Red)');
+        h0.add(segment.h0, 'x', -20, 20).onChange(updateCurve);
+        h0.add(segment.h0, 'y', -10, 10).onChange(updateCurve);
+        h0.add(segment.h0, 'z', -20, 20).onChange(updateCurve);
 
-    const p1 = editorFolder.addFolder('End Point (Green)');
-    p1.add(curveEditor.points.p1, 'x', -20, 20).onChange(updateCurve);
-    p1.add(curveEditor.points.p1, 'y', -10, 10).onChange(updateCurve);
-    p1.add(curveEditor.points.p1, 'z', -20, 20).onChange(updateCurve);
+        const h1 = segmentFolder.addFolder('Handle 2 (Red)');
+        h1.add(segment.h1, 'x', -20, 20).onChange(updateCurve);
+        h1.add(segment.h1, 'y', -10, 10).onChange(updateCurve);
+        h1.add(segment.h1, 'z', -20, 20).onChange(updateCurve);
+
+        const p1 = segmentFolder.addFolder('End Point (Green)');
+        p1.add(segment.p1, 'x', -20, 20).onChange(updateCurve);
+        p1.add(segment.p1, 'y', -10, 10).onChange(updateCurve);
+        p1.add(segment.p1, 'z', -20, 20).onChange(updateCurve);
+    });
 
     editorFolder.open();
 }
@@ -291,6 +338,15 @@ loader.load(modelUrl, function(gltf) {
     console.error('An error happened while loading the model:', error);
 });
 
+// --- DOM Elements for Navigation ---
+const navigationArrows = document.querySelector('.navigation-arrows');
+const leftArrow = document.getElementById('left-arrow');
+const rightArrow = document.getElementById('right-arrow');
+
+// --- Curve Movement State ---
+let currentPointIndex = 0;
+let isMoving = false; // To prevent multiple clicks while animating
+
 // --- GSAP Animation Setup ---
 const tl = gsap.timeline({
     scrollTrigger: {
@@ -330,6 +386,72 @@ tl.to(fallingCube.rotation, {
     ease: "power1.inOut"
 }, "<");
 
+// --- Function to move cube along the curve ---
+function moveCubeToPoint(direction) {
+    if (!curveEditor.curvePath || isMoving) return;
+    isMoving = true;
+    controls.enabled = false; // Disable mouse control during animation
+
+    const numPoints = curveEditor.segments.length;
+    const previousPointIndex = currentPointIndex;
+
+    // 1. Determine target index
+    if (direction === 'forward') {
+        currentPointIndex = (currentPointIndex + 1) % numPoints;
+    } else {
+        currentPointIndex = (currentPointIndex - 1 + numPoints) % numPoints;
+    }
+
+    // 2. Get the specific curve segment to travel along
+    // If moving forward, we use the curve starting at the previous index.
+    // If moving backward, we use the curve starting at the new (target) index.
+    const curveIndex = (direction === 'forward') ? previousPointIndex : currentPointIndex;
+    const curve = curveEditor.curvePath.curves[curveIndex];
+
+    // 3. Animate progress along the curve
+    const animation = {
+        progress: (direction === 'forward') ? 0 : 1
+    };
+    const targetProgress = (direction === 'forward') ? 1 : 0;
+
+    gsap.to(animation, {
+        progress: targetProgress,
+        duration: 2.0, // Duration for moving between two points
+        ease: 'power1.inOut',
+        onUpdate: function() {
+            // Get position and tangent from the curve based on progress
+            const newPosition = curve.getPointAt(animation.progress);
+            const tangent = curve.getTangentAt(animation.progress);
+            const lookAtPosition = new THREE.Vector3().addVectors(newPosition, tangent);
+
+            // Update cube position and orientation
+            fallingCube.position.copy(newPosition);
+            if (direction === 'forward') {
+                fallingCube.lookAt(lookAtPosition);
+            } else {
+                // When going backward, we need to invert the lookAt direction
+                const backwardLookAt = new THREE.Vector3().subVectors(newPosition, tangent);
+                fallingCube.lookAt(backwardLookAt);
+            }
+
+            // Update camera to follow the cube
+            const targetCameraPosition = newPosition.clone().add(cameraOffset);
+            camera.position.lerp(targetCameraPosition, 0.1); // Use lerp for smoother, continuous following
+            camera.lookAt(fallingCube.position);
+        },
+        onComplete: function() {
+            isMoving = false; // Allow next move
+            controls.enabled = true; // Re-enable mouse control
+        }
+    });
+}
+
+
+// --- Arrow Event Listeners ---
+rightArrow.addEventListener('click', () => moveCubeToPoint('forward'));
+leftArrow.addEventListener('click', () => moveCubeToPoint('backward'));
+
+
 // --- Animation Loop ---
 const clock = new THREE.Clock();
 
@@ -337,11 +459,17 @@ function animate() {
     requestAnimationFrame(animate);
 
     // Update visuals from data
-    if (curveEditor.visuals.p0) {
-        curveEditor.visuals.p0.position.copy(curveEditor.points.p0);
-        curveEditor.visuals.p1.position.copy(curveEditor.points.p1);
-        curveEditor.visuals.h0.position.copy(curveEditor.points.h0);
-        curveEditor.visuals.h1.position.copy(curveEditor.points.h1);
+    if (curveEditor.visuals.length > 0) { // Check if visuals have been created
+        curveEditor.segments.forEach((segment, segIndex) => {
+            const segmentVisuals = curveEditor.visuals[segIndex];
+            // console.log('segmentVisuals in animate loop:', segmentVisuals); // This is too noisy
+            if (segmentVisuals) {
+                segmentVisuals.p0.position.copy(segment.p0);
+                segmentVisuals.p1.position.copy(segment.p1);
+                segmentVisuals.h0.position.copy(segment.h0);
+                segmentVisuals.h1.position.copy(segment.h1);
+            }
+        });
     }
 
     const elapsedTime = clock.getElapsedTime();
@@ -355,20 +483,32 @@ function animate() {
         planeBoundingBox.setFromObject(landingPlane);
 
         if (cubeBoundingBox.intersectsBox(planeBoundingBox)) {
-            console.log('>>> Куб торкнувся Plane005! Редактор кривої активовано.');
+            console.log('>>> Куб торкнувся Plane005! Керування стрілками активовано.');
             collisionDetected = true;
-            tl.kill();
-            controls.enabled = true; // Enable controls on landing
-            console.log('OrbitControls enabled!');
+            tl.kill(); // Stop the falling animation
 
-            // Set the editor's starting point to the landing position
-            const landingPos = new THREE.Vector3();
-            fallingCube.getWorldPosition(landingPos);
-            curveEditor.points.p0.copy(landingPos);
+            // Show navigation arrows
+            if (navigationArrows) {
+                navigationArrows.style.display = 'flex';
+            }
 
-            // Create the editor visuals and GUI
+            // Remove the cube from the falling group so it's not affected by group's position
+            fallingCubeGroup.remove(fallingCube);
+            scene.add(fallingCube); // Add it directly to the scene
+
+            // Set the exact coordinates from the curve's start point
+            const hardcodedStartPoint = curveEditor.segments[0].p0;
+            fallingCube.position.copy(hardcodedStartPoint);
+            currentPointIndex = 0; // Reset progress
+
+            // 2. Create the editor visuals and GUI with the original, unaltered points
             createCurveEditor();
             setupCurveGUI();
+
+            // 3. Initial camera setup to look at the cube's new static position
+            const targetCameraPosition = fallingCube.position.clone().add(cameraOffset);
+            camera.position.copy(targetCameraPosition);
+            camera.lookAt(fallingCube.position);
         }
     }
 
@@ -379,11 +519,8 @@ function animate() {
         const targetCameraPosition = cubeWorldPosition.clone().add(cameraOffset);
         camera.position.lerp(targetCameraPosition, CONFIG.CAMERA_FOLLOW_SPEED);
         camera.lookAt(cubeWorldPosition);
-    } else {
-        // OrbitControls are active AFTER landing
-        controls.update();
-        console.log('Controls updating...');
     }
+
     renderer.render(scene, camera);
 }
 
