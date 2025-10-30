@@ -8,5 +8,5 @@ export const CONFIG = {
     CUBE_ROTATION_X: Math.PI * 2,
     CUBE_ROTATION_Z: Math.PI * 1.5,
     CAMERA_FOLLOW_SPEED: 0.05,
-    CAMERA_OFFSET: new THREE.Vector3(0, 5, 15)
+    CAMERA_OFFSET: new THREE.Vector3(-10, 5, 5)
 };

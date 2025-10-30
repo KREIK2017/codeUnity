@@ -386,6 +386,8 @@ tl.to(fallingCube.rotation, {
     ease: "power1.inOut"
 }, "<");
 
+let cameraOrbitAngle = 0; // Global variable to control camera orbit angle
+
 // --- Function to move cube along the curve ---
 function moveCubeToPoint(direction) {
     if (!curveEditor.curvePath || isMoving) return;
@@ -408,14 +410,20 @@ function moveCubeToPoint(direction) {
     const curveIndex = (direction === 'forward') ? previousPointIndex : currentPointIndex;
     const curve = curveEditor.curvePath.curves[curveIndex];
 
-    // 3. Animate progress along the curve
+    // Calculate target camera orbit angle
+    const angleStep = Math.PI / 3; // 45 degrees per segment
+    const targetCameraOrbitAngle = (direction === 'forward') ? cameraOrbitAngle + angleStep : cameraOrbitAngle - angleStep;
+
+    // 3. Animate progress along the curve and camera orbit angle
     const animation = {
-        progress: (direction === 'forward') ? 0 : 1
+        progress: (direction === 'forward') ? 0 : 1, // For cube movement along segment
+        currentCameraOrbitAngle: cameraOrbitAngle // For camera orbit angle
     };
     const targetProgress = (direction === 'forward') ? 1 : 0;
 
     gsap.to(animation, {
         progress: targetProgress,
+        currentCameraOrbitAngle: targetCameraOrbitAngle, // Animate camera angle directly
         duration: 2.0, // Duration for moving between two points
         ease: 'power1.inOut',
         onUpdate: function() {
@@ -434,18 +442,24 @@ function moveCubeToPoint(direction) {
                 fallingCube.lookAt(backwardLookAt);
             }
 
-            // Update camera to follow the cube
-            const targetCameraPosition = newPosition.clone().add(cameraOffset);
-            camera.position.lerp(targetCameraPosition, 0.1); // Use lerp for smoother, continuous following
-            camera.lookAt(fallingCube.position);
+            // Update camera to orbit the cube based on animated angle
+            const orbitRadius = 15; // Distance of camera from cube
+            const orbitHeight = 5; // Height of camera above cube
+
+            const cameraX = newPosition.x + Math.sin(animation.currentCameraOrbitAngle) * orbitRadius;
+            const cameraZ = newPosition.z + Math.cos(animation.currentCameraOrbitAngle) * orbitRadius;
+            const cameraY = newPosition.y + orbitHeight;
+
+            camera.position.lerp(new THREE.Vector3(cameraX, cameraY, cameraZ), 0.1);
+            camera.lookAt(newPosition);
         },
         onComplete: function() {
             isMoving = false; // Allow next move
             controls.enabled = true; // Re-enable mouse control
+            cameraOrbitAngle = animation.currentCameraOrbitAngle; // Update global angle after animation
         }
     });
 }
-
 
 // --- Arrow Event Listeners ---
 rightArrow.addEventListener('click', () => moveCubeToPoint('forward'));
