@@ -22,7 +22,7 @@ const scene = new THREE.Scene();
 
 // --- Reference Point Marker ---
 const markerGeometry = new THREE.SphereGeometry(0.3, 16, 16);
-const markerMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 }); // Green
+const markerMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00, visible: false }); // Green
 const referenceMarker = new THREE.Mesh(markerGeometry, markerMaterial);
 referenceMarker.position.set(-10, 1.75, 5);
 scene.add(referenceMarker);
@@ -177,10 +177,10 @@ function createCurveEditor() {
 
     curveEditor.segments.forEach((segment, segIndex) => {
         const segmentVisuals = {};
-        segmentVisuals.p0 = new THREE.Mesh(sphereGeo, new THREE.MeshBasicMaterial({ color: 0x00ff00 }));
-        segmentVisuals.p1 = new THREE.Mesh(sphereGeo, new THREE.MeshBasicMaterial({ color: 0x00ff00 }));
-        segmentVisuals.h0 = new THREE.Mesh(handleGeo, new THREE.MeshBasicMaterial({ color: 0xff0000 }));
-        segmentVisuals.h1 = new THREE.Mesh(handleGeo, new THREE.MeshBasicMaterial({ color: 0xff0000 }));
+        segmentVisuals.p0 = new THREE.Mesh(sphereGeo, new THREE.MeshBasicMaterial({ color: 0x00ff00, visible: false }));
+        segmentVisuals.p1 = new THREE.Mesh(sphereGeo, new THREE.MeshBasicMaterial({ color: 0x00ff00, visible: false }));
+        segmentVisuals.h0 = new THREE.Mesh(handleGeo, new THREE.MeshBasicMaterial({ color: 0xff0000, visible: false }));
+        segmentVisuals.h1 = new THREE.Mesh(handleGeo, new THREE.MeshBasicMaterial({ color: 0xff0000, visible: false }));
 
         segmentVisuals.p0.position.copy(segment.p0);
         segmentVisuals.p1.position.copy(segment.p1);
@@ -214,7 +214,7 @@ function updateCurve() {
     const geometry = new THREE.BufferGeometry().setFromPoints(points);
 
     if (!curveEditor.curveLine) {
-        const material = new THREE.LineBasicMaterial({ color: 0xffff00 });
+        const material = new THREE.LineBasicMaterial({ color: 0xffff00, visible: false });
         curveEditor.curveLine = new THREE.Line(geometry, material);
         scene.add(curveEditor.curveLine);
     } else {
@@ -464,6 +464,15 @@ function moveCubeToPoint(direction) {
 // --- Arrow Event Listeners ---
 rightArrow.addEventListener('click', () => moveCubeToPoint('forward'));
 leftArrow.addEventListener('click', () => moveCubeToPoint('backward'));
+
+// --- Keyboard Event Listeners ---
+window.addEventListener('keydown', (event) => {
+    if (event.key === 'ArrowLeft') {
+        moveCubeToPoint('backward');
+    } else if (event.key === 'ArrowRight') {
+        moveCubeToPoint('forward');
+    }
+});
 
 
 // --- Animation Loop ---
