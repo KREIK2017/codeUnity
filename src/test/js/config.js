@@ -6,7 +6,7 @@ export const CONFIG = {
     CUBE_FALL_DISTANCE: 36,
     CUBE_FALL_X_OFFSET: 5,
     CUBE_ROTATION_X: Math.PI * 2,
-    CUBE_ROTATION_Z: Math.PI * 1.5,
+    CUBE_ROTATION_Z: 0,
     CAMERA_FOLLOW_SPEED: 0.05,
     CAMERA_OFFSET: new THREE.Vector3(-10, 5, 5)
 };

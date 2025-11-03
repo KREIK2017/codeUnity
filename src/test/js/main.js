@@ -1,13 +1,13 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
+import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Sky } from 'three/examples/jsm/objects/Sky.js';
 import modelUrl from '../UnityCode_Island.glb';
 // import { setupModelCameraGUI } from './GUI.js';
-import { createFallingCubeScene } from './FallingCube.js';
 import { GUI } from 'lil-gui';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -41,16 +41,95 @@ const cameraOffset = CONFIG.CAMERA_OFFSET;
 // --- Camera Setup ---
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
-// --- Falling Cube Setup ---
-const { group: fallingCubeGroup, cube: fallingCube } = createFallingCubeScene(-16.2, 5);
-window.fallingCube = fallingCube; // Expose for testing
-scene.add(fallingCubeGroup);
+// --- Falling Model Setup ---
+let fallingCube; // Will be the loaded FBX model
+const fbxLoader = new FBXLoader();
 
-// Встановлюємо початкову позицію камери відносно куба
-const cubeWorldPosition = new THREE.Vector3();
-fallingCube.getWorldPosition(cubeWorldPosition);
-camera.position.copy(cubeWorldPosition.clone().add(cameraOffset));
-camera.lookAt(cubeWorldPosition);
+// --- Platform Setup ---
+const platformGeometry = new THREE.PlaneGeometry(2, 2);
+const platformMaterial = new THREE.MeshStandardMaterial({ color: 0xcccccc });
+const platform = new THREE.Mesh(platformGeometry, platformMaterial);
+platform.rotation.x = -Math.PI / 2;
+platform.position.set(-16.2, 36.9, 5);
+platform.receiveShadow = true;
+scene.add(platform);
+
+const tl = gsap.timeline({
+    scrollTrigger: {
+        trigger: document.body,
+        start: "top top",
+        end: "bottom bottom",
+        scrub: 1,
+    }
+});
+
+function hasMesh(object) {
+    if (object.isMesh || object.isSkinnedMesh) {
+        return true;
+    }
+
+    for (const child of object.children) {
+        if (hasMesh(child)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+fbxLoader.load('R01_Animate_S.fbx', (object) => {
+    fallingCube = object;
+    window.fallingCube = fallingCube;
+    fallingCube.scale.set(0.06, 0.06, 0.06); // Adjust scale if necessary
+    fallingCube.rotation.y = Math.PI / 2; // Rotate 90 degrees to the left
+    fallingCube.position.set(-16.2, 37, 5); // Initial position
+
+    // Inspect the loaded model hierarchy and hide non-essential helpers
+    fallingCube.traverse((child) => {
+        if (child.name.startsWith('nurbsCircle') && !hasMesh(child)) {
+            child.visible = false;
+        }
+    });
+
+    scene.add(fallingCube);
+
+    // Встановлюємо початкову позицію камери відносно моделі
+    const modelWorldPosition = new THREE.Vector3();
+    fallingCube.getWorldPosition(modelWorldPosition);
+    camera.position.copy(modelWorldPosition.clone().add(cameraOffset));
+    camera.lookAt(modelWorldPosition);
+
+    // --- Анімація куба в кілька етапів ---
+    if (fallingCube) {
+        // ЕТАП 1: Ковзання до краю платформи
+        tl.to(fallingCube.position, {
+            x: `+=${CONFIG.CUBE_SLIDE_DISTANCE}`,
+            ease: "power1.in",
+            duration: CONFIG.CUBE_SLIDE_DURATION
+        });
+
+        // ЕТАП 2: Падіння з краю (починається після ковзання)
+        // Горизонтальний рух під час падіння
+        tl.to(fallingCube.position, {
+            x: `+=${CONFIG.CUBE_FALL_X_OFFSET}`,
+            ease: "none"
+        }, ">");
+
+        // Вертикальний рух під час падіння (починається одночасно з горизонтальним)
+        tl.to(fallingCube.position, {
+            y: `-=${CONFIG.CUBE_FALL_DISTANCE}`,
+            ease: "power1.in"
+        }, "<");
+
+        // Обертання починається ТІЛЬКИ коли починається падіння
+        tl.to(fallingCube.rotation, {
+            x: CONFIG.CUBE_ROTATION_X,
+            z: CONFIG.CUBE_ROTATION_Z,
+            ease: "power1.inOut"
+        }, "<");
+    }
+});
+
 
 // --- Renderer Setup ---
 const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
@@ -118,45 +197,45 @@ skyFolder.open();
 const curveEditor = {
     segments: [ // Array to hold multiple curve segments
         {
-            p0: new THREE.Vector3(-10, 1.75, 5), // Anchor A (will be updated to landing spot)
-            h0: new THREE.Vector3(-3.5, 3.9, 6), // Handle for A
-            h1: new THREE.Vector3(-4.6, 3, 11.64), // Handle for B
+            p0: new THREE.Vector3(-10, 1.35, 5), // Anchor A (will be updated to landing spot)
+            h0: new THREE.Vector3(-3.5, 4, 6), // Handle for A
+            h1: new THREE.Vector3(-4.6, 2, 11.64), // Handle for B
             p1: new THREE.Vector3(1, 4, 11.5) // Anchor B
         },
         {
             // Placeholder for the second segment
             p0: new THREE.Vector3(1, 4, 11.5), // Anchor B (from previous segment)
-            h0: new THREE.Vector3(12, 4.5, 12.5), // Handle for B
+            h0: new THREE.Vector3(12, 4, 12.5), // Handle for B
             h1: new THREE.Vector3(5.5, 3.5, 10.12), // Handle for C
-            p1: new THREE.Vector3(7, 3.6, 3) // Anchor C
+            p1: new THREE.Vector3(7, 3.3, 3) // Anchor C
         },
         {
             // START of W-shape path (Segment 3)
-            p0: new THREE.Vector3(7, 3.6, 3), // Anchor C (Point 3)
-            h0: new THREE.Vector3(6.8, 3.5, 1.96),
-            h1: new THREE.Vector3(5.8, 3.5, -0.36),
-            p1: new THREE.Vector3(5.44, 3.6, -0.96) // Anchor W1
+            p0: new THREE.Vector3(7, 3.3, 3), // Anchor C (Point 3)
+            h0: new THREE.Vector3(6.8, 3.1, 1.96),
+            h1: new THREE.Vector3(5.8, 3.3, -0.36),
+            p1: new THREE.Vector3(5.44, 3.3, -0.96) // Anchor W1
         },
         {
             // W-shape path (Segment 4)
-            p0: new THREE.Vector3(5.44, 3.6, -0.96), // Anchor W1
+            p0: new THREE.Vector3(5.44, 3.3, -0.96), // Anchor W1
             h0: new THREE.Vector3(5.2, 3.3, -4),
-            h1: new THREE.Vector3(4.7, 3.2, -5),
-            p1: new THREE.Vector3(3.5, 3.5, -7) // Anchor W2
+            h1: new THREE.Vector3(4.7, 3.1, -5),
+            p1: new THREE.Vector3(3.5, 3.3, -7) // Anchor W2
         },
         {
             // END of W-shape path (Segment 5)
-            p0: new THREE.Vector3(3.5, 3.5, -7), // Anchor W2
-            h0: new THREE.Vector3(1, 3.3, -8.7),
-            h1: new THREE.Vector3(-1.5, 3.8, -6.7),
-            p1: new THREE.Vector3(-4, 4.3, -9) // Anchor D (Point 4)
+            p0: new THREE.Vector3(3.5, 3.3, -7), // Anchor W2
+            h0: new THREE.Vector3(1, 3.2, -8.7),
+            h1: new THREE.Vector3(-1.5, 3.5, -6.7),
+            p1: new THREE.Vector3(-4, 4.1, -9) // Anchor D (Point 4)
         },
         {
             // Segment 6
-            p0: new THREE.Vector3(-4, 4.3, -9),
-            h0: new THREE.Vector3(-10.8, 5.5, -9.5),
+            p0: new THREE.Vector3(-4, 4.1, -9),
+            h0: new THREE.Vector3(-10.8, 5.3, -9.5),
             h1: new THREE.Vector3(-10, 2.58, 1.9),
-            p1: new THREE.Vector3(-10, 1.75, 5)
+            p1: new THREE.Vector3(-10, 1.35, 5)
         }
 
     ],
@@ -347,44 +426,35 @@ const rightArrow = document.getElementById('right-arrow');
 let currentPointIndex = 0;
 let isMoving = false; // To prevent multiple clicks while animating
 
-// --- GSAP Animation Setup ---
-const tl = gsap.timeline({
-    scrollTrigger: {
-        trigger: document.body,
-        start: "top top",
-        end: "bottom bottom",
-        scrub: 1,
-    }
-});
-
 // --- Анімація куба в кілька етапів ---
+if (fallingCube) {
+    // ЕТАП 1: Ковзання до краю платформи
+    tl.to(fallingCube.position, {
+        x: `+=${CONFIG.CUBE_SLIDE_DISTANCE}`,
+        ease: "power1.in",
+        duration: CONFIG.CUBE_SLIDE_DURATION
+    });
 
-// ЕТАП 1: Ковзання до краю платформи
-tl.to(fallingCube.position, {
-    x: `+=${CONFIG.CUBE_SLIDE_DISTANCE}`,
-    ease: "power1.in",
-    duration: CONFIG.CUBE_SLIDE_DURATION
-});
+    // ЕТАП 2: Падіння з краю (починається після ковзання)
+    // Горизонтальний рух під час падіння
+    tl.to(fallingCube.position, {
+        x: `+=${CONFIG.CUBE_FALL_X_OFFSET}`,
+        ease: "none"
+    }, ">");
 
-// ЕТАП 2: Падіння з краю (починається після ковзання)
-// Горизонтальний рух під час падіння
-tl.to(fallingCube.position, {
-    x: `+=${CONFIG.CUBE_FALL_X_OFFSET}`,
-    ease: "none"
-}, ">");
+    // Вертикальний рух під час падіння (починається одночасно з горизонтальним)
+    tl.to(fallingCube.position, {
+        y: `-=${CONFIG.CUBE_FALL_DISTANCE}`,
+        ease: "power1.in"
+    }, "<");
 
-// Вертикальний рух під час падіння (починається одночасно з горизонтальним)
-tl.to(fallingCube.position, {
-    y: `-=${CONFIG.CUBE_FALL_DISTANCE}`,
-    ease: "power1.in"
-}, "<");
-
-// Обертання починається ТІЛЬКИ коли починається падіння
-tl.to(fallingCube.rotation, {
-    x: CONFIG.CUBE_ROTATION_X,
-    z: CONFIG.CUBE_ROTATION_Z,
-    ease: "power1.inOut"
-}, "<");
+    // Обертання починається ТІЛЬКИ коли починається падіння
+    tl.to(fallingCube.rotation, {
+        x: CONFIG.CUBE_ROTATION_X,
+        z: CONFIG.CUBE_ROTATION_Z,
+        ease: "power1.inOut"
+    }, "<");
+}
 
 let cameraOrbitAngle = 0; // Global variable to control camera orbit angle
 
@@ -515,13 +585,22 @@ function animate() {
                 navigationArrows.style.display = 'flex';
             }
 
-            // Remove the cube from the falling group so it's not affected by group's position
-            fallingCubeGroup.remove(fallingCube);
-            scene.add(fallingCube); // Add it directly to the scene
-
             // Set the exact coordinates from the curve's start point
             const hardcodedStartPoint = curveEditor.segments[0].p0;
             fallingCube.position.copy(hardcodedStartPoint);
+
+            // Orient the model correctly on landing
+            const firstCurve = new THREE.CubicBezierCurve3(
+                curveEditor.segments[0].p0,
+                curveEditor.segments[0].h0,
+                curveEditor.segments[0].h1,
+                curveEditor.segments[0].p1
+            );
+            const tangent = firstCurve.getTangentAt(0);
+            const lookAtPosition = new THREE.Vector3().addVectors(hardcodedStartPoint, tangent);
+            fallingCube.lookAt(lookAtPosition);
+            fallingCube.rotation.y += Math.PI / 2; // Apply initial rotation
+
             currentPointIndex = 0; // Reset progress
 
             // 2. Create the editor visuals and GUI with the original, unaltered points
@@ -535,7 +614,7 @@ function animate() {
         }
     }
 
-    if (!collisionDetected) {
+    if (!collisionDetected && fallingCube) {
         // Camera follows cube BEFORE landing
         const cubeWorldPosition = new THREE.Vector3();
         fallingCube.getWorldPosition(cubeWorldPosition);
