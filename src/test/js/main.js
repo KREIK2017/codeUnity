@@ -14,11 +14,30 @@ gsap.registerPlugin(ScrollTrigger);
 
 import { LowPolyWater } from './LowPolyWater.js';
 import { CONFIG } from './config.js';
+import { LogoManager } from './LogoManager.js';
 
 let directionalLight; // Declare directionalLight here
+let mixer; // Declare mixer here
+let islandMixer; // Declare islandMixer here
 
 // --- Scene Setup --- 
 const scene = new THREE.Scene();
+const logoManager = new LogoManager(scene);
+
+// --- Pop-up --- 
+const popupContainer = document.getElementById('popup-container');
+const popupButton = document.getElementById('popup-button');
+
+const loadingManager = new THREE.LoadingManager();
+
+loadingManager.onLoad = function() {
+    console.log('All models loaded');
+    popupButton.disabled = false;
+};
+
+popupButton.addEventListener('click', () => {
+    popupContainer.style.display = 'none';
+});
 
 // --- Reference Point Marker ---
 const markerGeometry = new THREE.SphereGeometry(0.3, 16, 16);
@@ -43,7 +62,7 @@ const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerH
 
 // --- Falling Model Setup ---
 let fallingCube; // Will be the loaded FBX model
-const fbxLoader = new FBXLoader();
+const fbxLoader = new FBXLoader(loadingManager);
 
 // --- Platform Setup ---
 const platformGeometry = new THREE.PlaneGeometry(2, 2);
@@ -96,6 +115,13 @@ fbxLoader.load('R01_Animate_S.fbx', (object) => {
     });
 
     scene.add(fallingCube);
+
+    // Animation setup
+    if (fallingCube.animations && fallingCube.animations.length > 0) {
+        mixer = new THREE.AnimationMixer(fallingCube);
+        const action = mixer.clipAction(fallingCube.animations[0]);
+        action.play();
+    }
 
     // Встановлюємо початкову позицію камери відносно моделі
     const modelWorldPosition = new THREE.Vector3();
@@ -382,7 +408,7 @@ const cubeBoundingBox = new THREE.Box3();
 const planeBoundingBox = new THREE.Box3();
 
 // --- Load Model ---
-const loader = new GLTFLoader();
+const loader = new GLTFLoader(loadingManager);
 const dracoLoader = new DRACOLoader();
 dracoLoader.setDecoderPath('./libs/draco/gltf/');
 loader.setDRACOLoader(dracoLoader);
@@ -393,8 +419,11 @@ loader.load(modelUrl, function(gltf) {
     // --- Налаштування моделі (поворот, масштаб, позиція) ---
     model.rotation.y = 2;
 
+    const wheelObjects = [];
     // Traverse the model to enable shadows and find the target planes
+    console.log('Model elements:');
     model.traverse(function(node) {
+        console.log(node.name);
         if (node.isMesh) {
             node.castShadow = true;
             node.receiveShadow = true;
@@ -405,8 +434,45 @@ loader.load(modelUrl, function(gltf) {
         if (node.name === 'Plane004') {
             // pathPlane = node; // Removed as path logic is replaced
         }
+        if (node.name === 'wheel' || node.name.startsWith('car_baked001')) {
+            wheelObjects.push(node);
+        }
+        if (node.name === 'Cube_Cube001') {
+            logoManager.addLogo(node, './textures/logos/blue-wordpress-logo-hd-picture-3.png');
+        }
+        if (node.name === 'Cube') {
+            logoManager.addLogo(node, './textures/logos/CSS3_logo_and_wordmark.svg.png');
+        }
+        if (node.name === 'Downtown_Center_City1456') {
+            logoManager.addLogo(node, './textures/logos/HTML5_logo_and_wordmark.svg.png');
+        }
     });
     scene.add(model);
+
+    if (wheelObjects.length > 0) {
+        islandMixer = new THREE.AnimationMixer(model);
+        const tracks = [];
+        wheelObjects.forEach(obj => {
+            const axis = new THREE.Vector3(0, 1, 0);
+            const qInitial = new THREE.Quaternion().setFromAxisAngle(axis, 0);
+            const qMiddle = new THREE.Quaternion().setFromAxisAngle(axis, Math.PI);
+            const qFinal = new THREE.Quaternion().setFromAxisAngle(axis, 2 * Math.PI);
+
+            const times = [0, 4, 8]; // Start, middle, and end times
+            const values = [
+                ...qInitial.toArray(),
+                ...qMiddle.toArray(),
+                ...qFinal.toArray(),
+            ];
+            const track = new THREE.QuaternionKeyframeTrack(obj.name + '.quaternion', times, values);
+            tracks.push(track);
+        });
+
+        const clip = new THREE.AnimationClip('WheelAnimation', -1, tracks);
+        const action = islandMixer.clipAction(clip);
+        action.setLoop(THREE.LoopRepeat);
+        action.play();
+    }
 
 
 
@@ -570,6 +636,21 @@ function animate() {
     }
 
     const elapsedTime = clock.getElapsedTime();
+    const delta = clock.getDelta();
+
+    if (mixer) {
+        mixer.update(delta);
+    }
+
+    if (islandMixer) {
+        islandMixer.update(delta);
+    }
+
+
+
+    if (logoManager) {
+        logoManager.update(camera);
+    }
 
     if (water) {
         water.update(elapsedTime);
@@ -602,6 +683,10 @@ function animate() {
             );
             const tangent = firstCurve.getTangentAt(0);
             const lookAtPosition = new THREE.Vector3().addVectors(hardcodedStartPoint, tangent);
+
+            // Reset rotation before applying new one
+            fallingCube.rotation.set(0, 0, 0);
+
             fallingCube.lookAt(lookAtPosition);
             fallingCube.rotation.y += Math.PI / 2; // Apply initial rotation
 
