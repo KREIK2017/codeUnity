@@ -86,6 +86,10 @@ fbxLoader.load('R01_Animate_S.fbx', (object) => {
 
     // Inspect the loaded model hierarchy and hide non-essential helpers
     fallingCube.traverse((child) => {
+        if (child.isMesh) {
+            child.castShadow = true;
+            child.receiveShadow = true; // Optional: if the model should receive shadows from other objects
+        }
         if (child.name.startsWith('nurbsCircle') && !hasMesh(child)) {
             child.visible = false;
         }
