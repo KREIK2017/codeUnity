@@ -13,7 +13,7 @@ export default defineConfig({
         open: '/' // Вказуємо, яку сторінку відкривати
 
     },
-    assetsInclude: ['**/*.glb'],
+    assetsInclude: ['**/*.glb', '**/*.fbx'],
     plugins: [ // Add the plugins array
         viteStaticCopy({
             targets: [{
