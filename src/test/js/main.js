@@ -583,7 +583,7 @@ function moveCubeToPoint(direction) {
             }
 
             // Update camera to orbit the cube based on animated angle
-            const orbitRadius = 15; // Distance of camera from cube
+            const orbitRadius = 8; // Distance of camera from cube
             const orbitHeight = 5; // Height of camera above cube
 
             const cameraX = newPosition.x + Math.sin(animation.currentCameraOrbitAngle) * orbitRadius;
