@@ -15,6 +15,9 @@ gsap.registerPlugin(ScrollTrigger);
 import { LowPolyWater } from './LowPolyWater.js';
 import { CONFIG } from './config.js';
 import { LogoManager } from './LogoManager.js';
+import wordpressLogoUrl from '../textures/logos/blue-wordpress-logo-hd-picture-3.png';
+import cssLogoUrl from '../textures/logos/CSS3_logo_and_wordmark.svg.png';
+import htmlLogoUrl from '../textures/logos/HTML5_logo_and_wordmark.svg.png';
 
 let directionalLight; // Declare directionalLight here
 let mixer; // Declare mixer here
@@ -438,13 +441,13 @@ loader.load(modelUrl, function(gltf) {
             wheelObjects.push(node);
         }
         if (node.name === 'Cube_Cube001') {
-            logoManager.addLogo(node, './textures/logos/blue-wordpress-logo-hd-picture-3.png');
+            logoManager.addLogo(node, wordpressLogoUrl);
         }
         if (node.name === 'Cube') {
-            logoManager.addLogo(node, './textures/logos/CSS3_logo_and_wordmark.svg.png');
+            logoManager.addLogo(node, cssLogoUrl);
         }
         if (node.name === 'Downtown_Center_City1456') {
-            logoManager.addLogo(node, './textures/logos/HTML5_logo_and_wordmark.svg.png');
+            logoManager.addLogo(node, htmlLogoUrl);
         }
     });
     scene.add(model);

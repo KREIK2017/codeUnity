@@ -3,7 +3,7 @@ import { resolve } from 'path';
 import { viteStaticCopy } from 'vite-plugin-static-copy'; // Import the plugin
 
 export default defineConfig({
-    base: '/codeUnity/',
+    base: '',
     root: 'src/test',
     build: {
         outDir: '../../dist',
@@ -16,12 +16,10 @@ export default defineConfig({
     assetsInclude: ['**/*.glb'],
     plugins: [ // Add the plugins array
         viteStaticCopy({
-            targets: [
-                {
-                    src: 'libs/draco/*', // Source path relative to Vite root (src/test)
-                    dest: 'libs/draco' // Destination path relative to build.outDir
-                }
-            ]
+            targets: [{
+                src: 'libs/draco/*', // Source path relative to Vite root (src/test)
+                dest: 'libs/draco' // Destination path relative to build.outDir
+            }]
         })
     ]
 });
