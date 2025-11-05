@@ -7,6 +7,7 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Sky } from 'three/examples/jsm/objects/Sky.js';
 import modelUrl from '../UnityCode_Island.glb';
+import fbxModelUrl from '../R01_Animate_S.fbx';
 // import { setupModelCameraGUI } from './GUI.js';
 import { GUI } from 'lil-gui';
 
@@ -99,7 +100,7 @@ function hasMesh(object) {
     return false;
 }
 
-fbxLoader.load('R01_Animate_S.fbx', (object) => {
+fbxLoader.load(fbxModelUrl, (object) => {
     fallingCube = object;
     window.fallingCube = fallingCube;
     fallingCube.scale.set(0.06, 0.06, 0.06); // Adjust scale if necessary
