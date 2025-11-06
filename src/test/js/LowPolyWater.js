@@ -51,7 +51,7 @@ export class LowPolyWater {
         // Water volume (BoxGeometry)
         const volumeHeight = 50; // How deep the water volume goes
         const volumeGeometry = new THREE.BoxGeometry(1000, volumeHeight, 1000, 1, 1, 1); // Low subdivisions for volume
-        volumeGeometry.translate(0, -volumeHeight / 2 - 20, 0); // Position its center further below the surface
+        volumeGeometry.translate(0, -volumeHeight / 2 - 5, 0); // Position its center further below the surface
 
         // Calculate vertex colors for volume depth effect
         const volumeTopColor = this.midColor; // Blends with the surface

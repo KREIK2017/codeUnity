@@ -9,7 +9,15 @@ class LogoManager {
 
     addLogo(targetObject, logoUrl) {
         this.textureLoader.load(logoUrl, (texture) => {
-            const material = new THREE.MeshBasicMaterial({ map: texture, transparent: true, alphaTest: 0.5, blending: THREE.NormalBlending });
+            texture.colorSpace = THREE.SRGBColorSpace; // Explicitly set color space
+            const material = new THREE.MeshStandardMaterial({
+                map: texture,
+                transparent: true,
+                alphaTest: 0.5,
+                emissive: 0xffffff,
+                emissiveMap: texture,
+                emissiveIntensity: 1.0
+            });
             const geometry = new THREE.PlaneGeometry(1, 1);
             const logo = new THREE.Mesh(geometry, material);
 

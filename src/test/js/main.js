@@ -19,10 +19,22 @@ import { LogoManager } from './LogoManager.js';
 import wordpressLogoUrl from '../textures/logos/blue-wordpress-logo-hd-picture-3.png';
 import cssLogoUrl from '../textures/logos/CSS3_logo_and_wordmark.svg.png';
 import htmlLogoUrl from '../textures/logos/HTML5_logo_and_wordmark.svg.png';
-
+import shopifyLogoUrl from '../textures/logos/Shopify-Logo-PNG-HD.png';
+import androidLogoUrl from '../textures/logos/icons8-android-100.png';
+import iosLogoUrl from '../textures/logos/icons8-apple-intelligence-100.png';
 let directionalLight; // Declare directionalLight here
 let mixer; // Declare mixer here
 let islandMixer; // Declare islandMixer here
+let ferrisWheelMixer; // Declare ferrisWheelMixer here
+let ferrisWheelAction; // Declare ferrisWheelAction here
+let model; // Declare model here
+
+// --- Raycaster for Mouse Hover ---
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
+const mousePosition = new THREE.Vector2();
+let intersectedObject = null;
+const tooltip = document.getElementById('tooltip');
 
 // --- Scene Setup --- 
 const scene = new THREE.Scene();
@@ -174,6 +186,7 @@ renderer.shadowMap.enabled = true; // Enable shadows
 renderer.shadowMap.type = THREE.PCFSoftShadowMap; // Додаємо для м'яких тіней
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 document.body.appendChild(renderer.domElement);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
 
 // --- Controls ---
 const controls = new OrbitControls(camera, renderer.domElement);
@@ -186,7 +199,7 @@ const effectController = {
     mieDirectionalG: 1,
     elevation: 60,
     azimuth: 60,
-    exposure: 1
+    exposure: 0.8
 };
 
 function guiChanged() {
@@ -417,7 +430,7 @@ const dracoLoader = new DRACOLoader();
 dracoLoader.setDecoderPath('./libs/draco/gltf/');
 loader.setDRACOLoader(dracoLoader);
 loader.load(modelUrl, function(gltf) {
-    const model = gltf.scene;
+    model = gltf.scene;
     window.model = model; // Expose for testing
 
     // --- Налаштування моделі (поворот, масштаб, позиція) ---
@@ -450,6 +463,15 @@ loader.load(modelUrl, function(gltf) {
         if (node.name === 'Downtown_Center_City1456') {
             logoManager.addLogo(node, htmlLogoUrl);
         }
+        if (node.name === 'Mesh011') {
+            logoManager.addLogo(node, shopifyLogoUrl);
+        }
+        if (node.name === 'MainBridge') {
+            logoManager.addLogo(node, androidLogoUrl);
+        }
+        if (node.name === 'BackBridge') {
+            logoManager.addLogo(node, iosLogoUrl);
+        }
     });
     scene.add(model);
 
@@ -476,6 +498,19 @@ loader.load(modelUrl, function(gltf) {
         const action = islandMixer.clipAction(clip);
         action.setLoop(THREE.LoopRepeat);
         action.play();
+    }
+
+    // Play ferris_wheel_armature animation
+    if (gltf.animations && gltf.animations.length > 0) {
+        const ferrisWheelClip = THREE.AnimationClip.findByName(gltf.animations, 'ferris_wheel_armature|ferris_wheel_armature|ferriss_wheel_acti');
+        if (ferrisWheelClip) {
+            ferrisWheelMixer = new THREE.AnimationMixer(model);
+            ferrisWheelAction = ferrisWheelMixer.clipAction(ferrisWheelClip);
+            ferrisWheelAction.setLoop(THREE.LoopRepeat);
+            ferrisWheelAction.play();
+        } else {
+            console.warn('Animation clip "ferris_wheel_armature|ferris_wheel_armature|ferriss_wheel_acti" not found.');
+        }
     }
 
 
@@ -625,6 +660,45 @@ const clock = new THREE.Clock();
 function animate() {
     requestAnimationFrame(animate);
 
+    // --- Raycasting for Tooltip ---
+    if (model) {
+        // console.log('Raycasting on model:', model);
+        raycaster.setFromCamera(mouse, camera);
+        const intersects = raycaster.intersectObject(model, true);
+
+        if (intersects.length > 0) {
+            // console.log('Intersects:', intersects);
+            let objectToShow = intersects[0].object;
+            let objectName = '';
+
+            // Traverse up the hierarchy to find a name
+            while (objectToShow && !objectName) {
+                if (objectToShow.name && objectToShow.name.trim() !== '' && objectToShow.name.trim() !== 'Scene') {
+                    objectName = objectToShow.name;
+                }
+                objectToShow = objectToShow.parent;
+            }
+            // console.log('Found name:', objectName);
+
+            if (objectName) {
+                intersectedObject = intersects[0].object; // Keep track of the actual intersected mesh
+                tooltip.style.display = 'block';
+                tooltip.textContent = objectName;
+                tooltip.style.left = (mousePosition.x + 10) + 'px';
+                tooltip.style.top = (mousePosition.y + 10) + 'px';
+            } else {
+                tooltip.style.display = 'none';
+                intersectedObject = null;
+            }
+        } else {
+            if (intersectedObject) {
+                tooltip.style.display = 'none';
+            }
+            intersectedObject = null;
+        }
+    }
+    // -----------------------------
+
     // Update visuals from data
     if (curveEditor.visuals.length > 0) { // Check if visuals have been created
         curveEditor.segments.forEach((segment, segIndex) => {
@@ -648,6 +722,16 @@ function animate() {
 
     if (islandMixer) {
         islandMixer.update(delta);
+    }
+
+    if (ferrisWheelMixer) {
+        // ferrisWheelMixer.update(delta);
+    }
+
+    if (ferrisWheelAction) {
+        const elapsedTime = clock.getElapsedTime();
+        ferrisWheelAction.time = elapsedTime % ferrisWheelAction.getClip().duration;
+        ferrisWheelMixer.update(0); // Update with 0 delta to apply the new time
     }
 
 
@@ -726,4 +810,13 @@ window.addEventListener('resize', () => {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+window.addEventListener('mousemove', (event) => {
+    // Normalize mouse coordinates
+    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+    mousePosition.x = event.clientX;
+    mousePosition.y = event.clientY;
 });

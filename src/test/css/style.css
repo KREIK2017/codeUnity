@@ -102,3 +102,12 @@ canvas {
     background-color: #3498db;
     color: white;
 }
+
+#tooltip {
+    position: absolute;
+    display: none;
+    background-color: white;
+    border: 1px solid black;
+    padding: 5px;
+    z-index: 100;
+}
