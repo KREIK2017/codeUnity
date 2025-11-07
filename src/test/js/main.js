@@ -28,6 +28,7 @@ let islandMixer; // Declare islandMixer here
 let ferrisWheelMixer; // Declare ferrisWheelMixer here
 let ferrisWheelAction; // Declare ferrisWheelAction here
 let model; // Declare model here
+let boat; // <<< Змінна для човна
 
 // --- Raycaster for Mouse Hover ---
 const raycaster = new THREE.Raycaster();
@@ -472,6 +473,12 @@ loader.load(modelUrl, function(gltf) {
         if (node.name === 'BackBridge') {
             logoManager.addLogo(node, iosLogoUrl);
         }
+        // +++ ПОШУК ЧОВНА +++
+        if (node.name === 'Boat') {
+            boat = node; // Зберігаємо об'єкт човна
+            console.log('Boat object found:', boat);
+        }
+        // +++ КІНЕЦЬ ПОШУКУ +++
     });
     scene.add(model);
 
@@ -742,6 +749,21 @@ function animate() {
 
     if (water) {
         water.update(elapsedTime);
+
+        // +++ МАТЕМАТИЧНА ЛОГІКА ПЛАВАННЯ ЧОВНА (БЕЗ RAYCAST) +++
+        if (boat && water) {
+            const boatPosition = new THREE.Vector3();
+            boat.getWorldPosition(boatPosition);
+
+            // 1. Отримуємо висоту води в позиції човна за допомогою нової функції
+            const waterHeight = water.getHeightAt(boatPosition.x, boatPosition.z);
+
+            // 2. Плавно інтерполюємо позицію човна до розрахованої висоти
+            // +0.1 - невеликий зсув, щоб човен був над ватерлінією
+            const targetBoatY = waterHeight + 0.1;
+            boat.position.y = THREE.MathUtils.lerp(boat.position.y, targetBoatY, 0.1);
+        }
+        // +++ КІНЕЦЬ ЛОГІКИ ПЛАВАННЯ +++
     }
 
     if (landingPlane && fallingCube && !collisionDetected) {

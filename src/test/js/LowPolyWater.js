@@ -169,4 +169,52 @@ export class LowPolyWater {
         positionAttribute.needsUpdate = true;
         colorAttribute.needsUpdate = true; // Important for color animation
     }
+
+    getHeightAt(x, z) {
+        // 1. Трансформуємо світові координати в локальні координати водної площини
+        const localPos = new THREE.Vector3(x, 0, z);
+        this.mesh.worldToLocal(localPos);
+
+        const lx = localPos.x;
+        const lz = localPos.z;
+
+        // Деталі площини з конструктора
+        const planeSize = 1000;
+        const segments = 500;
+        const halfSize = planeSize / 2;
+        const segmentSize = planeSize / segments;
+        const verticesPerRow = segments + 1;
+
+        // 2. Знаходимо комірку сітки та дробову позицію
+        const gridX = Math.floor((lx + halfSize) / segmentSize);
+        const gridZ = Math.floor((lz + halfSize) / segmentSize);
+
+        // Перевірка меж
+        if (gridX < 0 || gridX >= segments || gridZ < 0 || gridZ >= segments) {
+            return this.mesh.position.y; // Поза водною площиною, повертаємо базовий рівень води
+        }
+
+        const fracX = ((lx + halfSize) / segmentSize) - gridX;
+        const fracZ = ((lz + halfSize) / segmentSize) - gridZ;
+
+        // 3. Отримуємо індекси 4-х навколишніх вершин
+        const v1_index = gridX + gridZ * verticesPerRow;
+        const v2_index = (gridX + 1) + gridZ * verticesPerRow;
+        const v3_index = gridX + (gridZ + 1) * verticesPerRow;
+        const v4_index = (gridX + 1) + (gridZ + 1) * verticesPerRow;
+
+        // 4. Отримуємо поточну висоту цих вершин з атрибута геометрії
+        const h1 = this.surfacePositionAttribute.getY(v1_index);
+        const h2 = this.surfacePositionAttribute.getY(v2_index);
+        const h3 = this.surfacePositionAttribute.getY(v3_index);
+        const h4 = this.surfacePositionAttribute.getY(v4_index);
+
+        // 5. Виконуємо білінійну інтерполяцію
+        const ix1 = THREE.MathUtils.lerp(h1, h2, fracX);
+        const ix2 = THREE.MathUtils.lerp(h3, h4, fracX);
+        const localHeight = THREE.MathUtils.lerp(ix1, ix2, fracZ);
+
+        // 6. Трансформуємо локальну висоту назад у світову
+        return localHeight + this.mesh.position.y;
+    }
 }
