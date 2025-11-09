@@ -5,7 +5,6 @@ import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { Sky } from 'three/examples/jsm/objects/Sky.js';
 import modelUrl from '../UnityCode_Island.glb';
 import fbxModelUrl from '../R01_Animate_S.fbx';
 // import { setupModelCameraGUI } from './GUI.js';
@@ -17,7 +16,7 @@ import { LowPolyWater } from './LowPolyWater.js';
 import { CONFIG } from './config.js';
 import {
     CurveManager,
-    // LightingManager, 
+    LightingManager,
     // AnimationManager,
     LogoManager
 } from './modules/index.js';
@@ -28,7 +27,6 @@ import shopifyLogoUrl from '../textures/logos/Shopify-Logo-PNG-HD.png';
 import androidLogoUrl from '../textures/logos/icons8-android-100.png';
 import iosLogoUrl from '../textures/logos/icons8-apple-intelligence-100.png';
 let curveManager;
-let directionalLight; // Declare directionalLight here
 let mixer; // Declare mixer here
 let islandMixer; // Declare islandMixer here
 let ferrisWheelMixer; // Declare ferrisWheelMixer here
@@ -70,12 +68,6 @@ referenceMarker.position.set(-10, 1.75, 5);
 scene.add(referenceMarker);
 // -----------------------------
 
-// Skybox
-const sky = new Sky();
-sky.scale.setScalar(450000);
-scene.add(sky);
-
-const sun = new THREE.Vector3();
 
 // Визначаємо, на якій відстані від куба буде камера
 const cameraOffset = CONFIG.CAMERA_OFFSET;
@@ -199,94 +191,21 @@ renderer.outputColorSpace = THREE.SRGBColorSpace;
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enabled = false; // Disabled until the cube lands
 
-const effectController = {
-    turbidity: 10,
-    rayleigh: 0.165,
-    mieCoefficient: 0.009,
-    mieDirectionalG: 1,
-    elevation: 60,
-    azimuth: 60,
-    exposure: 0.8
-};
-
-function guiChanged() {
-
-    const uniforms = sky.material.uniforms;
-    uniforms['turbidity'].value = effectController.turbidity;
-    uniforms['rayleigh'].value = effectController.rayleigh;
-    uniforms['mieCoefficient'].value = effectController.mieCoefficient;
-    uniforms['mieDirectionalG'].value = effectController.mieDirectionalG;
-
-    const phi = THREE.MathUtils.degToRad(90 - effectController.elevation);
-    const theta = THREE.MathUtils.degToRad(effectController.azimuth);
-
-    sun.setFromSphericalCoords(1, phi, theta);
-
-    uniforms['sunPosition'].value.copy(sun);
-
-    // Update directional light position based on sun
-    if (directionalLight) {
-        directionalLight.position.copy(sun).multiplyScalar(50);
-    }
-
-    renderer.toneMappingExposure = effectController.exposure;
-
-    renderer.render(scene, camera);
-
-}
-
 // --- GUI ---
 const gui = new GUI();
-const skyFolder = gui.addFolder('Sky');
-skyFolder.add(effectController, 'turbidity', 0.0, 20.0, 0.1).onChange(guiChanged);
-skyFolder.add(effectController, 'rayleigh', 0.0, 4.0, 0.001).onChange(guiChanged);
-skyFolder.add(effectController, 'mieCoefficient', 0.0, 0.1, 0.001).onChange(guiChanged);
-skyFolder.add(effectController, 'mieDirectionalG', 0.0, 1.0, 0.001).onChange(guiChanged);
-skyFolder.add(effectController, 'elevation', 0, 90, 0.1).onChange(guiChanged);
-skyFolder.add(effectController, 'azimuth', 0, 360, 0.1).onChange(guiChanged);
-skyFolder.add(effectController, 'exposure', 0.0, 1.0, 0.0001).onChange(guiChanged);
-skyFolder.open();
+const lightingManager = new LightingManager(scene, renderer, camera, gui);
 
 
 
-// --- Lighting ---
-// Ambient light to softly illuminate all objects in the scene equally
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.8); // Increased intensity
-scene.add(ambientLight);
 
-// Hemisphere light for more natural ambient lighting (sky and ground colors)
-const hemisphereLight = new THREE.HemisphereLight(0xb1e1ff, 0xb97a20, 0.7); // Sky color, ground color, intensity
-scene.add(hemisphereLight);
 
-directionalLight = new THREE.DirectionalLight(0xffffff, 3);
-directionalLight.position.copy(sun).multiplyScalar(50);
-directionalLight.target.position.set(0, 0, 0);
-scene.add(directionalLight.target);
 
-directionalLight.castShadow = true;
-directionalLight.shadow.mapSize.set(4096, 4096);
-directionalLight.shadow.camera.left = -50;
-directionalLight.shadow.camera.right = 50;
-directionalLight.shadow.camera.top = 50;
-directionalLight.shadow.camera.bottom = -50;
-directionalLight.shadow.camera.near = 0.5;
-directionalLight.shadow.camera.far = 200;
-
-directionalLight.shadow.bias = -0.002;
-directionalLight.shadow.normalBias = 0.05;
-
-scene.add(directionalLight);
-
-guiChanged(); // Call guiChanged() after directionalLight is initialized
 
 // --- Для перевірки ---
 // const helper = new THREE.CameraHelper(directionalLight.shadow.camera);
 // scene.add(helper);
 
-// Point light for localized illumination (e.g., a lamp)
-const pointLight = new THREE.PointLight(0xffffff, 1, 100); // Color, intensity, distance
-pointLight.position.set(0, 5, 0); // Position the point light
-scene.add(pointLight);
+
 
 let water;
 let landingPlane;
