@@ -3,3 +3,4 @@ export * from './LogoManager.js';
 export * from './LightingManager.js';
 // export * from './AnimationManager.js';
 // export * from './InteractionManager.js';
+export * from './AssetLoader.js';
