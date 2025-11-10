@@ -11,7 +11,9 @@ import {
     CurveManager,
     LightingManager,
     LogoManager,
-    AssetLoader
+    AssetLoader,
+    AnimationManager,
+    Logger
 } from './modules/index.js';
 
 // --- Global-like variables ---
@@ -35,7 +37,7 @@ const popupButton = document.getElementById('popup-button');
 
 const loadingManager = new THREE.LoadingManager();
 loadingManager.onLoad = function() {
-    console.log('All models loaded via LoadingManager');
+    Logger.assetLoad('All models loaded via LoadingManager');
     popupButton.disabled = false;
 };
 popupButton.addEventListener('click', () => {
@@ -63,14 +65,7 @@ platform.receiveShadow = true;
 scene.add(platform);
 
 // --- GSAP Timeline ---
-const tl = gsap.timeline({
-    scrollTrigger: {
-        trigger: document.body,
-        start: "top top",
-        end: "bottom bottom",
-        scrub: 1,
-    }
-});
+// The GSAP timeline is now managed by AnimationManager
 
 // --- Renderer Setup ---
 const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
@@ -90,6 +85,7 @@ controls.enabled = false;
 // --- GUI & Managers ---
 const gui = new GUI();
 const lightingManager = new LightingManager(scene, renderer, camera, gui);
+const animationManager = new AnimationManager(scene, camera, renderer);
 
 // --- Collision Detection variables ---
 let collisionDetected = false;
@@ -134,7 +130,7 @@ window.addEventListener('mousemove', (event) => {
 const assetLoader = new AssetLoader(scene, loadingManager, logoManager);
 
 assetLoader.loadAll().then(assets => {
-    console.log('All assets loaded via AssetLoader!', assets);
+    Logger.assetLoad('All assets loaded via AssetLoader!', assets);
     fallingCube = assets.fallingCube; // Assign to the global-like variable
 
     // 1. Setup initial camera position
@@ -144,10 +140,7 @@ assetLoader.loadAll().then(assets => {
     camera.lookAt(modelWorldPosition);
 
     // 2. Setup GSAP animation for the falling cube
-    tl.to(assets.fallingCube.position, { x: `+=${CONFIG.CUBE_SLIDE_DISTANCE}`, ease: "power1.in", duration: CONFIG.CUBE_SLIDE_DURATION });
-    tl.to(assets.fallingCube.position, { x: `+=${CONFIG.CUBE_FALL_X_OFFSET}`, ease: "none" }, ">");
-    tl.to(assets.fallingCube.position, { y: `-=${CONFIG.CUBE_FALL_DISTANCE}`, ease: "power1.in" }, "<");
-    tl.to(assets.fallingCube.rotation, { x: CONFIG.CUBE_ROTATION_X, z: CONFIG.CUBE_ROTATION_Z, ease: "power1.inOut" }, "<");
+    animationManager.setupInitialCubeAnimation(assets.fallingCube, CONFIG);
 
     // 3. Start the main animation loop
     startAnimation(assets);
@@ -155,8 +148,12 @@ assetLoader.loadAll().then(assets => {
 
 // --- Animation Loop ---
 function startAnimation(assets) {
-    const clock = new THREE.Clock();
     const landingPlane = assets.landingPlane;
+
+    // Add mixers to AnimationManager
+    if (assets.mixer) animationManager.addMixer(assets.mixer);
+    if (assets.islandMixer) animationManager.addMixer(assets.islandMixer);
+    if (assets.ferrisWheelMixer) animationManager.addMixer(assets.ferrisWheelMixer);
 
     function animate() {
         requestAnimationFrame(animate);
@@ -194,16 +191,8 @@ function startAnimation(assets) {
 
         if (curveManager) { curveManager.updateVisualsInLoop(); }
 
-        const delta = clock.getDelta();
-        const elapsedTime = clock.getElapsedTime();
-
-        // Update animations from assets
-        if (assets.mixer) assets.mixer.update(delta);
-        if (assets.islandMixer) assets.islandMixer.update(delta);
-        if (assets.ferrisWheelAction && assets.ferrisWheelMixer) {
-            assets.ferrisWheelAction.time = elapsedTime % assets.ferrisWheelAction.getClip().duration;
-            assets.ferrisWheelMixer.update(0);
-        }
+        // Update all animations via AnimationManager
+        animationManager.update();
 
         if (logoManager) {
             logoManager.update(camera);
@@ -211,7 +200,7 @@ function startAnimation(assets) {
 
         // Water and boat logic from assets
         if (assets.water) {
-            assets.water.update(elapsedTime);
+            assets.water.update(animationManager.clock.getElapsedTime()); // Use animationManager's clock
             if (assets.boat) {
                 const boatPosition = new THREE.Vector3();
                 assets.boat.getWorldPosition(boatPosition);
@@ -227,9 +216,9 @@ function startAnimation(assets) {
             planeBoundingBox.setFromObject(landingPlane);
 
             if (cubeBoundingBox.intersectsBox(planeBoundingBox)) {
-                console.log('>>> Куб торкнувся Plane005! Керування стрілками активовано.');
+                Logger.collision('Куб торкнувся Plane005! Керування стрілками активовано.');
                 collisionDetected = true;
-                tl.kill();
+                animationManager.killAllGSAPTimelines(); // Kill all GSAP timelines
 
                 if (navigationArrows) navigationArrows.style.display = 'flex';
                 

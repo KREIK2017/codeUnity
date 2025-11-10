@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 
 export const CONFIG = {
+    DEBUG: true,
     CUBE_SLIDE_DISTANCE: 1.2,
     CUBE_SLIDE_DURATION: 0.1,
     CUBE_FALL_DISTANCE: 36,
