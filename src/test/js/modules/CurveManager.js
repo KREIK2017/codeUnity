@@ -2,12 +2,13 @@ import * as THREE from 'three';
 import gsap from 'gsap';
 
 export class CurveManager {
-    constructor(scene, gui, camera, controls, fallingCube) {
+    constructor(scene, gui, camera, controls, fallingCube, popupManager) {
         this.scene = scene;
         this.gui = gui;
         this.camera = camera;
         this.controls = controls;
         this.fallingCube = fallingCube;
+        this.popupManager = popupManager; // Store the popup manager
         this.currentPointIndex = 0;
         this.isMoving = false;
         this.cameraOrbitAngle = 0;
@@ -222,6 +223,11 @@ export class CurveManager {
                 this.isMoving = false; // Allow next move
                 this.controls.enabled = true; // Re-enable mouse control
                 this.cameraOrbitAngle = animation.currentCameraOrbitAngle; // Update global angle after animation
+                
+                // Show popup for the destination point
+                if (this.popupManager) {
+                    this.popupManager.showPopup(this.currentPointIndex);
+                }
             }
         });
 

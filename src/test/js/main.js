@@ -16,13 +16,15 @@ import {
     LogoManager, // Manages the display and interaction of 3D logos
     AssetLoader, // Loads 3D models, textures, and other assets
     AnimationManager, // Manages all Three.js mixers and GSAP timelines
-    Logger // Custom logging utility for debug messages
+    Logger, // Custom logging utility for debug messages
+    PopupManager
 } from './modules/index.js';
 
 // --- Global-like variables ---
 // These variables are defined at a high level to be accessible throughout the script.
 let curveManager; // Manages the animation path of the cube after it lands.
 let fallingCube; // The main cube object that the user interacts with. It's assigned after assets are loaded.
+let isInteractionEnabled = true; // Flag to control user interaction (e.g., movement).
 
 // --- Raycaster for Mouse Hover ---
 // This section sets up the logic for detecting when the mouse hovers over 3D objects.
@@ -100,6 +102,7 @@ controls.enabled = false; // Initially disabled; enabled after the cube lands.
 const gui = new GUI(); // The main GUI panel for debugging.
 const lightingManager = new LightingManager(scene, renderer, camera, gui); // Manages all lights and shadows in the scene.
 const animationManager = new AnimationManager(scene, camera, renderer); // Manages all animations (GSAP and Three.js mixers).
+const popupManager = new PopupManager(); // Manages the pop-ups that appear at curve points.
 
 // --- Collision Detection variables ---
 // Variables used to detect when the falling cube hits the landing platform.
@@ -116,16 +119,27 @@ const rightArrow = document.getElementById('right-arrow');
 // --- Event Listeners ---
 // This section handles user input and window events.
 
+// Listen for pop-up events to disable/enable interaction.
+document.addEventListener('popup-opened', () => {
+    isInteractionEnabled = false;
+    controls.enabled = false; // Disable camera controls
+});
+document.addEventListener('popup-closed', () => {
+    isInteractionEnabled = true;
+    controls.enabled = true; // Enable camera controls
+});
+
 // Listen for clicks on the navigation arrows to move the cube.
 rightArrow.addEventListener('click', () => {
-    if (curveManager) curveManager.move('forward');
+    if (isInteractionEnabled && curveManager) curveManager.move('forward');
 });
 leftArrow.addEventListener('click', () => {
-    if (curveManager) curveManager.move('backward');
+    if (isInteractionEnabled && curveManager) curveManager.move('backward');
 });
 
 // Listen for keyboard arrow keys to move the cube.
 window.addEventListener('keydown', (event) => {
+    if (!isInteractionEnabled) return; // Block input if interaction is disabled.
     if (event.key === 'ArrowLeft') {
         if (curveManager) curveManager.move('backward');
     } else if (event.key === 'ArrowRight') {
@@ -260,7 +274,7 @@ function startAnimation(assets) {
                 if (navigationArrows) navigationArrows.style.display = 'flex'; // Show navigation controls.
                 
                 // Initialize the CurveManager to handle movement along the path.
-                curveManager = new CurveManager(scene, gui, camera, controls, fallingCube);
+                curveManager = new CurveManager(scene, gui, camera, controls, fallingCube, popupManager);
                 const hardcodedStartPoint = curveManager.config.segments[0].p0;
                 fallingCube.position.copy(hardcodedStartPoint); // Snap the cube to the start of the path.
 
