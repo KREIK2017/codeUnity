@@ -158,6 +158,14 @@ window.addEventListener('resize', () => {
     renderer.setSize(window.innerWidth, window.innerHeight);
 });
 
+// Track mouse movement for the raycaster to detect hovers.
+window.addEventListener('mousemove', (event) => {
+    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+    mousePosition.x = event.clientX;
+    mousePosition.y = event.clientY;
+});
+
 // =================================================================
 // ASSET LOADER AND APP START
 // This is the main entry point of the application.
@@ -185,54 +193,6 @@ assetLoader.loadAll().then(assets => {
     // 3. Start the main animation loop.
     // This function contains the code that runs on every frame.
     startAnimation(assets);
-
-    // 4. Add throttled mousemove listener for raycasting after assets are loaded
-    let throttleTimeout = null;
-    const throttleDelay = 100; // milliseconds
-
-    window.addEventListener('mousemove', (event) => {
-        mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-        mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-        mousePosition.x = event.clientX;
-        mousePosition.y = event.clientY;
-
-        if (!throttleTimeout) {
-            throttleTimeout = setTimeout(() => {
-                throttleTimeout = null; // Reset timeout
-                if (assets.model) {
-                    raycaster.setFromCamera(mouse, camera);
-                    const intersects = raycaster.intersectObject(assets.model, true);
-
-                    if (intersects.length > 0) {
-                        let objectToShow = intersects[0].object;
-                        let objectName = '';
-                        while (objectToShow && !objectName) {
-                            if (objectToShow.name && objectToShow.name.trim() !== '' && objectToShow.name.trim() !== 'Scene') {
-                                objectName = objectToShow.name;
-                            }
-                            objectToShow = objectToShow.parent;
-                        }
-
-                        if (objectName) {
-                            intersectedObject = intersects[0].object;
-                            tooltip.style.display = 'block';
-                            tooltip.textContent = objectName;
-                            tooltip.style.left = (mousePosition.x + 10) + 'px';
-                            tooltip.style.top = (mousePosition.y + 10) + 'px';
-                        } else {
-                            tooltip.style.display = 'none';
-                            intersectedObject = null;
-                        }
-                    } else {
-                        if (intersectedObject) {
-                            tooltip.style.display = 'none';
-                        }
-                        intersectedObject = null;
-                    }
-                }
-            }, throttleDelay);
-        }
-    });
 });
 
 // --- Animation Loop ---
@@ -248,6 +208,41 @@ function startAnimation(assets) {
     // The animate function is the core of the rendering loop, called on every frame.
     function animate() {
         requestAnimationFrame(animate); // Schedule the next frame.
+
+        // --- Raycasting for Tooltip ---
+        // This logic checks if the mouse is hovering over any interactive objects and displays a tooltip.
+        if (assets.model) {
+            raycaster.setFromCamera(mouse, camera); // Update the raycaster's position.
+            const intersects = raycaster.intersectObject(assets.model, true); // Find intersections.
+
+            if (intersects.length > 0) {
+                // Find the parent object with a meaningful name to display in the tooltip.
+                let objectToShow = intersects[0].object;
+                let objectName = '';
+                while (objectToShow && !objectName) {
+                    if (objectToShow.name && objectToShow.name.trim() !== '' && objectToShow.name.trim() !== 'Scene') {
+                        objectName = objectToShow.name;
+                    }
+                    objectToShow = objectToShow.parent;
+                }
+
+                if (objectName) {
+                    intersectedObject = intersects[0].object;
+                    tooltip.style.display = 'block';
+                    tooltip.textContent = objectName;
+                    tooltip.style.left = (mousePosition.x + 10) + 'px';
+                    tooltip.style.top = (mousePosition.y + 10) + 'px';
+                } else {
+                    tooltip.style.display = 'none';
+                    intersectedObject = null;
+                }
+            } else {
+                if (intersectedObject) {
+                    tooltip.style.display = 'none';
+                }
+                intersectedObject = null;
+            }
+        }
 
         // Update managers and other animated elements on each frame.
         if (curveManager) { curveManager.updateVisualsInLoop(); } // Update the curve visuals if they exist.
