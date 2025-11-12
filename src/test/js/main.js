@@ -188,7 +188,7 @@ assetLoader.loadAll().then(assets => {
 
     // 2. Setup the initial GSAP animation for the falling cube.
     // This animation is managed by the AnimationManager.
-    animationManager.setupInitialCubeAnimation(assets.fallingCube, CONFIG, controls);
+    animationManager.setupInitialCubeAnimation(assets.fallingCube, CONFIG);
 
     // 3. Start the main animation loop.
     // This function contains the code that runs on every frame.
@@ -276,7 +276,7 @@ function startAnimation(assets) {
                 animationManager.killAllGSAPTimelines(); // Stop the initial falling animation.
 
                 if (navigationArrows) navigationArrows.style.display = 'flex'; // Show navigation controls.
-                
+
                 // Initialize the CurveManager to handle movement along the path.
                 curveManager = new CurveManager(scene, gui, camera, controls, fallingCube, popupManager);
                 const hardcodedStartPoint = curveManager.config.segments[0].p0;
@@ -291,7 +291,7 @@ function startAnimation(assets) {
                 );
                 const tangent = firstCurve.getTangentAt(0);
                 const lookAtPosition = new THREE.Vector3().addVectors(hardcodedStartPoint, tangent);
-                
+
                 fallingCube.rotation.set(0, 0, 0);
                 fallingCube.lookAt(lookAtPosition);
                 fallingCube.rotation.y += Math.PI / 2; // Apply rotation correction.

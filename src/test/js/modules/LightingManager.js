@@ -47,7 +47,7 @@ export class LightingManager {
         this.scene.add(this.directionalLight.target);
 
         this.directionalLight.castShadow = true;
-        
+
         // Conditional shadow map size
         const shadowMapSize = this.isMobile ? 1024 : 2048;
         this.directionalLight.shadow.mapSize.set(shadowMapSize, shadowMapSize);
