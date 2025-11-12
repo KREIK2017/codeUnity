@@ -48,6 +48,21 @@ canvas {
     transition: background-color 0.2s;
 }
 
+/* Responsive adjustments for navigation arrows on smaller screens */
+@media (max-width: 768px) {
+    .navigation-arrows {
+        width: 80%;
+        max-width: 180px; /* Ensure it doesn't get too wide on slightly larger mobiles */
+        bottom: 20px;
+    }
+
+    .arrow {
+        width: 50px;
+        height: 50px;
+        font-size: 24px;
+    }
+}
+
 .arrow:hover {
     background-color: rgba(0, 0, 0, 0.8);
 }
@@ -67,20 +82,21 @@ canvas {
 
 #popup {
     width: 75%;
+    max-width: 600px; /* Added max-width for larger screens */
     background-color: white;
-    padding: 40px 20px; /* Increased top and bottom padding */
+    padding: 40px 20px;
     border-radius: 10px;
     text-align: center;
 }
 
 #popup h1 {
     font-size: 50px;
-    margin-bottom: 20px; /* Added margin below h1 */
+    margin-bottom: 20px;
 }
 
 #popup p {
     font-size: 25px;
-    margin-bottom: 20px; /* Added margin below p */
+    margin-bottom: 20px;
 }
 
 #popup-button {
@@ -90,6 +106,30 @@ canvas {
     cursor: pointer;
     font-size: 30px;
     margin-top: 20px;
+}
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 768px) {
+    #popup {
+        width: 90%;
+        padding: 20px 15px;
+    }
+
+    #popup h1 {
+        font-size: 36px;
+        margin-bottom: 15px;
+    }
+
+    #popup p {
+        font-size: 18px;
+        margin-bottom: 15px;
+    }
+
+    #popup-button {
+        font-size: 24px;
+        padding: 8px 15px;
+        margin-top: 15px;
+    }
 }
 
 #popup-button:disabled {
@@ -197,4 +237,34 @@ canvas {
 
 .info-popup-left button:hover {
     background-color: #2980b9;
+}
+
+/* Responsive adjustments for info popup on smaller screens */
+@media (max-width: 768px) {
+    .info-popup-content {
+        flex-direction: column;
+        width: 95%;
+        padding: 20px;
+    }
+
+    .info-popup-right {
+        display: none; /* Hide image on mobile to save space */
+    }
+
+    .info-popup-left {
+        padding: 20px;
+    }
+
+    .info-popup-left h2 {
+        font-size: 24px;
+    }
+
+    .info-popup-left p {
+        font-size: 14px;
+    }
+
+    .info-popup-left button {
+        font-size: 14px;
+        padding: 10px 20px;
+    }
 }
