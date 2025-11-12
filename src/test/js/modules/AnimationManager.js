@@ -35,7 +35,7 @@ class AnimationManager {
     setupInitialCubeAnimation(fallingCube, CONFIG, controls) { // Accept controls
         const tl = gsap.timeline({
             scrollTrigger: {
-                trigger: document.body,
+                trigger: "#scroll-container",
                 start: "top top",
                 end: "bottom bottom",
                 scrub: 1,
