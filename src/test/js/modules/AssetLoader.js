@@ -105,10 +105,7 @@ export class AssetLoader {
                 let landingPlane, boat;
 
                 model.traverse((node) => {
-                    if (node.isMesh) {
-                        node.castShadow = true;
-                        node.receiveShadow = true;
-                    }
+                    // Removed generic shadow casting/receiving for all meshes
                     if (node.name === 'Plane005') landingPlane = node;
                     if (node.name === 'Boat') boat = node;
                     if (node.name === 'wheel' || node.name.startsWith('car_baked001')) {
@@ -129,6 +126,11 @@ export class AssetLoader {
                 this.assets.model = model;
                 this.assets.landingPlane = landingPlane;
                 this.assets.boat = boat;
+
+                // Explicitly enable receiveShadow for the landing plane
+                if (this.assets.landingPlane) {
+                    this.assets.landingPlane.receiveShadow = true;
+                }
 
                 // Анімація коліс
                 if (wheelObjects.length > 0) {

@@ -104,7 +104,7 @@ controls.enabled = false; // Initially disabled; enabled after the cube lands.
 // --- GUI & Managers ---
 // This section initializes the debugging GUI and the main managers for different functionalities.
 const gui = new GUI(); // The main GUI panel for debugging.
-const lightingManager = new LightingManager(scene, renderer, camera, gui); // Manages all lights and shadows in the scene.
+const lightingManager = new LightingManager(scene, renderer, camera, gui, isMobile); // Manages all lights and shadows in the scene.
 const animationManager = new AnimationManager(scene, camera, renderer); // Manages all animations (GSAP and Three.js mixers).
 const popupManager = new PopupManager(); // Manages the pop-ups that appear at curve points.
 
