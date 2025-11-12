@@ -32,13 +32,21 @@ class AnimationManager {
         this.mixers.push(mixer);
     }
 
-    setupInitialCubeAnimation(fallingCube, CONFIG) {
+    setupInitialCubeAnimation(fallingCube, CONFIG, controls) { // Accept controls
         const tl = gsap.timeline({
             scrollTrigger: {
                 trigger: document.body,
                 start: "top top",
                 end: "bottom bottom",
                 scrub: 1,
+                onToggle: self => {
+                    // When ScrollTrigger is active, disable controls and pointer events on the canvas
+                    // When it's inactive, re-enable them.
+                    if (controls) {
+                        controls.enabled = !self.isActive;
+                    }
+                    this.renderer.domElement.style.pointerEvents = self.isActive ? 'none' : 'auto';
+                }
             }
         });
 
