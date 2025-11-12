@@ -83,11 +83,15 @@ scene.add(platform);
 // --- Renderer Setup ---
 // The renderer is responsible for drawing the scene onto the screen.
 const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent); // Check if the user is on a mobile device.
-const renderer = new THREE.WebGLRenderer({ antialias: !isMobile, logarithmicDepthBuffer: true }); // Use WebGL to render, with antialiasing disabled on mobile for performance.
-renderer.setSize(window.innerWidth, window.innerHeight); // Set the size of the renderer to the window size.
-renderer.setPixelRatio(window.devicePixelRatio); // Use the device's pixel ratio for sharper images.
-renderer.shadowMap.enabled = true; // Enable shadows.
-renderer.shadowMap.type = THREE.PCFSoftShadowMap; // Use soft shadows for a more realistic look.
+const renderer = new THREE.WebGLRenderer({
+    antialias: !isMobile,
+    logarithmicDepthBuffer: true,
+    powerPreference: 'high-performance'
+});
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = isMobile ? THREE.PCFShadowMap : THREE.PCFSoftShadowMap;
 renderer.toneMapping = THREE.ACESFilmicToneMapping; // Use filmic tone mapping for better color and lighting.
 document.body.appendChild(renderer.domElement); // Add the renderer's canvas to the HTML body.
 renderer.outputColorSpace = THREE.SRGBColorSpace; // Set the output color space.
