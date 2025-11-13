@@ -40,12 +40,12 @@ class AnimationManager {
                 end: "bottom bottom",
                 scrub: 1,
                 onToggle: self => {
-                    // When ScrollTrigger is active, disable controls and pointer events on the canvas
-                    // When it's inactive, re-enable them.
+                    // Always keep pointer-events none on the canvas to allow scroll and arrow clicks
+                    this.renderer.domElement.style.pointerEvents = 'none';
+                    // When ScrollTrigger is active, disable controls.
                     if (controls) {
                         controls.enabled = !self.isActive;
                     }
-                    this.renderer.domElement.style.pointerEvents = self.isActive ? 'none' : 'auto';
                 }
             }
         });

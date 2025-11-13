@@ -188,7 +188,7 @@ assetLoader.loadAll().then(assets => {
 
     // 2. Setup the initial GSAP animation for the falling cube.
     // This animation is managed by the AnimationManager.
-    animationManager.setupInitialCubeAnimation(assets.fallingCube, CONFIG);
+    animationManager.setupInitialCubeAnimation(assets.fallingCube, CONFIG, controls);
 
     // 3. Start the main animation loop.
     // This function contains the code that runs on every frame.
