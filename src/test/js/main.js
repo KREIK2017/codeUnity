@@ -43,11 +43,13 @@ const logoManager = new LogoManager(scene); // Initializes the manager for 3D lo
 // This handles the initial loading screen that appears when the application starts.
 const popupContainer = document.getElementById('popup-container');
 const popupButton = document.getElementById('popup-button');
+const popupPreloader = document.getElementById('popup-preloader');
 
 // The LoadingManager tracks the progress of all loaded assets.
 const loadingManager = new THREE.LoadingManager();
 loadingManager.onLoad = function() {
     Logger.assetLoad('All models loaded via LoadingManager');
+    if (popupPreloader) popupPreloader.style.display = 'none'; // Hide preloader
     popupButton.disabled = false; // Enable the button once everything is loaded.
 };
 popupButton.addEventListener('click', () => {
