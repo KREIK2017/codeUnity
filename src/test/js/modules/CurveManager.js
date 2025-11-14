@@ -216,7 +216,12 @@ export class CurveManager {
                 const cameraZ = newPosition.z + Math.cos(animation.currentCameraOrbitAngle) * orbitRadius;
                 const cameraY = newPosition.y + orbitHeight;
 
-                this.camera.position.lerp(new THREE.Vector3(cameraX, cameraY, cameraZ), 0.1);
+                // Frame-rate independent lerp for smooth camera movement
+                const targetCameraPos = new THREE.Vector3(cameraX, cameraY, cameraZ);
+                const delta = gsap.ticker.deltaRatio(); // Adjusts for frame rate (e.g., 0.5 for 120fps, 2 for 30fps)
+                const alpha = 1 - Math.pow(0.9, delta); // 0.9 is (1 - original_alpha_of_0.1)
+                this.camera.position.lerp(targetCameraPos, alpha);
+
                 this.camera.lookAt(newPosition);
             },
             onComplete: () => {
