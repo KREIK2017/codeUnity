@@ -54,6 +54,8 @@ loadingManager.onLoad = function() {
 };
 popupButton.addEventListener('click', () => {
     popupContainer.style.display = 'none'; // Hide the pop-up when the button is clicked.
+    // Refresh ScrollTrigger to recalculate positions after the layout change
+    ScrollTrigger.refresh();
 });
 
 // --- Reference Point Marker ---
