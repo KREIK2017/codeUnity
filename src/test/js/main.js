@@ -1,6 +1,6 @@
 // --- Core Three.js and Third-Party Libraries ---
 import * as THREE from 'three'; // Core Three.js library for 3D graphics
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'; // Camera controls for orbiting around a target
+// import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'; // Camera controls for orbiting around a target
 import gsap from 'gsap'; // Animation library for JavaScript
 import { ScrollTrigger } from 'gsap/ScrollTrigger'; // GSAP plugin for scroll-based animations
 import { GUI } from 'lil-gui'; // Lightweight GUI for debugging and development
@@ -102,8 +102,9 @@ renderer.outputColorSpace = THREE.SRGBColorSpace; // Set the output color space.
 
 // --- Controls ---
 // OrbitControls allow the camera to be controlled by the user (e.g., orbiting, panning, zooming).
-const controls = new OrbitControls(camera, renderer.domElement);
-controls.enabled = false; // Initially disabled; enabled after the cube lands.
+// const controls = new OrbitControls(camera, renderer.domElement);
+// controls.enabled = false; // Initially disabled; enabled after the cube lands.
+const controls = null; // OrbitControls disabled as per user request
 
 // --- GUI & Managers ---
 // This section initializes the debugging GUI and the main managers for different functionalities.
@@ -130,11 +131,11 @@ const rightArrow = document.getElementById('right-arrow');
 // Listen for pop-up events to disable/enable interaction.
 document.addEventListener('popup-opened', () => {
     isInteractionEnabled = false;
-    controls.enabled = false; // Disable camera controls
+    // controls.enabled = false; // Disable camera controls
 });
 document.addEventListener('popup-closed', () => {
     isInteractionEnabled = true;
-    controls.enabled = true; // Enable camera controls
+    // controls.enabled = true; // Enable camera controls
 });
 
 // Listen for clicks on the navigation arrows to move the cube.

@@ -158,7 +158,7 @@ export class CurveManager {
     move(direction) {
         if (!this.config.curvePath || this.isMoving) return;
         this.isMoving = true;
-        this.controls.enabled = false; // Disable mouse control during animation
+        if (this.controls) this.controls.enabled = false; // Disable mouse control during animation
 
         const numPoints = this.config.segments.length;
         const previousPointIndex = this.currentPointIndex;
@@ -221,7 +221,7 @@ export class CurveManager {
             },
             onComplete: () => {
                 this.isMoving = false; // Allow next move
-                this.controls.enabled = true; // Re-enable mouse control
+                if (this.controls) this.controls.enabled = true; // Re-enable mouse control
                 this.cameraOrbitAngle = animation.currentCameraOrbitAngle; // Update global angle after animation
                 
                 // Show popup for the destination point

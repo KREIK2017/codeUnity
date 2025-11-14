@@ -9,6 +9,7 @@ class AnimationManager {
         this.mixers = [];
         this.gsapTimelines = [];
         this.clock = new THREE.Clock();
+        this.initialTogglePassed = false; // Flag to handle initial ScrollTrigger state
         console.log("AnimationManager initialized.");
     }
 
@@ -40,9 +41,17 @@ class AnimationManager {
                 end: "bottom bottom",
                 scrub: 1,
                 onToggle: self => {
-                    // Always keep pointer-events none on the canvas to allow scroll and arrow clicks
-                    this.renderer.domElement.style.pointerEvents = 'none';
-                    // When ScrollTrigger is active, disable controls.
+                    if (!this.initialTogglePassed && !self.isActive) {
+                        // First "off" toggle is on initialization. Ignore it and set the flag.
+                        this.initialTogglePassed = true;
+                        // We must ensure pointer-events are none and controls are disabled initially.
+                        this.renderer.domElement.style.pointerEvents = 'none';
+                        if (controls) controls.enabled = false;
+                        return;
+                    }
+
+                    // Standard logic for all other toggles
+                    this.renderer.domElement.style.pointerEvents = self.isActive ? 'none' : 'auto';
                     if (controls) {
                         controls.enabled = !self.isActive;
                     }
