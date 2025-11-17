@@ -268,6 +268,14 @@ function startAnimation(assets) {
             }
         }
 
+        // --- Propeller Animation ---
+        if (assets.propeller1) {
+            assets.propeller1.rotation.z += 0.1;
+        }
+        if (assets.propeller2) {
+            assets.propeller2.rotation.z += 0.15;
+        }
+
         // --- Collision Logic ---
         // This block runs until the initial collision between the cube and the platform occurs.
         if (landingPlane && fallingCube && !collisionDetected) {

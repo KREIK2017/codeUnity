@@ -102,12 +102,14 @@ export class AssetLoader {
                 model.rotation.y = 2;
 
                 const wheelObjects = [];
-                let landingPlane, boat;
+                let landingPlane, boat, propeller1, propeller2;
 
                 model.traverse((node) => {
                     // Removed generic shadow casting/receiving for all meshes
                     if (node.name === 'Plane005') landingPlane = node;
                     if (node.name === 'Boat') boat = node;
+                    if (node.name === 'Roundcube001') propeller1 = node;
+                    if (node.name === 'Roundcube002') propeller2 = node;
                     if (node.name === 'wheel' || node.name.startsWith('car_baked001')) {
                         wheelObjects.push(node);
                     }
@@ -126,6 +128,8 @@ export class AssetLoader {
                 this.assets.model = model;
                 this.assets.landingPlane = landingPlane;
                 this.assets.boat = boat;
+                this.assets.propeller1 = propeller1;
+                this.assets.propeller2 = propeller2;
 
                 // Explicitly enable receiveShadow for the landing plane
                 if (this.assets.landingPlane) {
