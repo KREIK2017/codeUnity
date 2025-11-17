@@ -198,6 +198,16 @@ assetLoader.loadAll().then(assets => {
     // 3. Start the main animation loop.
     // This function contains the code that runs on every frame.
     startAnimation(assets);
+
+    // 4. Setup crane animation
+    const { craneCable, craneHook1, craneHook2 } = assets;
+
+    if (craneCable && craneHook1 && craneHook2) {
+        animationManager.createCraneAnimation(craneCable, [craneHook1, craneHook2]);
+        Logger.info('Crane animation initialized.');
+    } else {
+        Logger.error('Could not find all crane parts from AssetLoader for animation.');
+    }
 });
 
 // --- Animation Loop ---
@@ -286,7 +296,7 @@ function startAnimation(assets) {
             if (cubeBoundingBox.intersectsBox(planeBoundingBox)) {
                 Logger.collision('Куб торкнувся Plane005! Керування стрілками активовано.');
                 collisionDetected = true; // Set the flag to prevent this block from running again.
-                animationManager.killAllGSAPTimelines(); // Stop the initial falling animation.
+                animationManager.killOneOffTimelines(); // Stop the initial falling animation.
 
                 if (navigationArrows) navigationArrows.style.display = 'flex'; // Show navigation controls.
 
