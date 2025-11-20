@@ -43,7 +43,7 @@ class AnimationManager {
             scrollTrigger: {
                 trigger: "#scroll-container",
                 start: "top top",
-                end: "bottom bottom",
+                end: "+=1500",
                 scrub: 1,
                 onToggle: self => {
                     if (!this.initialTogglePassed && !self.isActive) {
