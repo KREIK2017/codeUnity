@@ -1,5 +1,8 @@
 import * as THREE from 'three';
 
+const CAMERA_OFFSET_INITIAL = new THREE.Vector3(-5, 2.5, 0);
+const CAMERA_OFFSET_SCROLLED = new THREE.Vector3(-5, 2.5, 2.5);
+
 export const CONFIG = {
     DEBUG: true,
     CUBE_SLIDE_DISTANCE: 1.2,
@@ -9,5 +12,7 @@ export const CONFIG = {
     CUBE_ROTATION_X: Math.PI * 2,
     CUBE_ROTATION_Z: 0,
     CAMERA_FOLLOW_SPEED: 0.05,
-    CAMERA_OFFSET: new THREE.Vector3(-5, 2.5, 2.5)
+    CAMERA_OFFSET_INITIAL,
+    CAMERA_OFFSET_SCROLLED,
+    CAMERA_OFFSET: CAMERA_OFFSET_INITIAL.clone()
 };

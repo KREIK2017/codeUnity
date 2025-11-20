@@ -60,9 +60,21 @@ class AnimationManager {
             }
         });
 
-        tl.to(fallingCube.position, { x: `+=${CONFIG.CUBE_SLIDE_DISTANCE}`, ease: "power1.in", duration: CONFIG.CUBE_SLIDE_DURATION });
-        tl.to(fallingCube.position, { x: `+=${CONFIG.CUBE_FALL_X_OFFSET}`, ease: "none" }, ">");
-        tl.to(fallingCube.position, { y: `-=${CONFIG.CUBE_FALL_DISTANCE}`, ease: "power1.in" }, "<");
+                const slideDuration = CONFIG.CUBE_SLIDE_DURATION;
+                const fallDuration = 0.5; // GSAP's default tween duration
+        
+                tl.to(fallingCube.position, { x: `+=${CONFIG.CUBE_SLIDE_DISTANCE}`, ease: "power1.in", duration: slideDuration });
+        
+                // Animate camera offset during the slide and fall for a smoother effect
+                tl.to(CONFIG.CAMERA_OFFSET, {
+                    x: CONFIG.CAMERA_OFFSET_SCROLLED.x,
+                    y: CONFIG.CAMERA_OFFSET_SCROLLED.y,
+                    z: CONFIG.CAMERA_OFFSET_SCROLLED.z,
+                    duration: slideDuration + fallDuration,
+                    ease: "power1.inOut"
+                }, "<");
+                
+                tl.to(fallingCube.position, { x: `+=${CONFIG.CUBE_FALL_X_OFFSET}`, ease: "none" }, ">");        tl.to(fallingCube.position, { y: `-=${CONFIG.CUBE_FALL_DISTANCE}`, ease: "power1.in" }, "<");
         tl.to(fallingCube.rotation, { x: CONFIG.CUBE_ROTATION_X, z: CONFIG.CUBE_ROTATION_Z, ease: "power1.inOut" }, "<");
 
         this.addOneOffTimeline(tl); // Add to one-off timelines
