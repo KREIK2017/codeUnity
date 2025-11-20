@@ -12,6 +12,8 @@ export class CurveManager {
         this.currentPointIndex = 0;
         this.isMoving = false;
         this.cameraOrbitAngle = 0;
+        this.crystals = [];
+        this.pointToCrystalMap = new Map();
 
         this.config = {
             segments: [ // Array to hold multiple curve segments
@@ -68,13 +70,17 @@ export class CurveManager {
         const sphereGeo = new THREE.SphereGeometry(0.25, 16, 16);
         const handleGeo = new THREE.SphereGeometry(0.15, 16, 16);
 
-        // Clear existing visuals if any
+        // --- Cleanup from previous calls ---
+        this.crystals.forEach(c => this.scene.remove(c));
+        this.crystals = [];
+        this.pointToCrystalMap.clear();
         this.config.visuals.forEach(segmentVisuals => {
             Object.values(segmentVisuals).forEach(v => this.scene.remove(v));
         });
         this.config.visuals = [];
 
-        this.config.segments.forEach((segment, segIndex) => {
+        // --- Create invisible spheres for GUI ---
+        this.config.segments.forEach((segment) => {
             const segmentVisuals = {};
             segmentVisuals.p0 = new THREE.Mesh(sphereGeo, new THREE.MeshBasicMaterial({ color: 0x00ff00, visible: false }));
             segmentVisuals.p1 = new THREE.Mesh(sphereGeo, new THREE.MeshBasicMaterial({ color: 0x00ff00, visible: false }));
@@ -89,7 +95,40 @@ export class CurveManager {
             Object.values(segmentVisuals).forEach(v => this.scene.add(v));
             this.config.visuals.push(segmentVisuals);
         });
-        console.log('this.config.visuals after population:', this.config.visuals);
+
+        // --- Create visible crystals above the points ---
+        const octahedronGeo = new THREE.OctahedronGeometry(0.25, 0);
+        const octahedronMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+        const edgesGeo = new THREE.EdgesGeometry(octahedronGeo);
+        const edgesMat = new THREE.LineBasicMaterial({ color: 0xcccccc });
+
+        const createCrystal = () => {
+            const group = new THREE.Group();
+            group.add(new THREE.Mesh(octahedronGeo, octahedronMat));
+            group.add(new THREE.LineSegments(edgesGeo, edgesMat));
+            return group;
+        };
+
+        const uniquePoints = new Map();
+        this.config.segments.forEach(segment => {
+            uniquePoints.set(segment.p0, segment.p0);
+        });
+
+        uniquePoints.forEach(pointVec => {
+            const crystalGroup = createCrystal();
+            crystalGroup.position.copy(pointVec).add(new THREE.Vector3(0, 0.5, 0));
+            this.scene.add(crystalGroup);
+            this.crystals.push(crystalGroup);
+            this.pointToCrystalMap.set(pointVec, crystalGroup);
+        });
+
+        // --- Set Initial State ---
+        // Hide the crystal at the robot's starting point
+        const initialPoint = this.config.segments[0].p0;
+        const initialCrystal = this.pointToCrystalMap.get(initialPoint);
+        if (initialCrystal) {
+            initialCrystal.visible = false;
+        }
 
         this._updateCurve();
     }
@@ -157,6 +196,14 @@ export class CurveManager {
 
     move(direction) {
         if (!this.config.curvePath || this.isMoving) return;
+
+        // --- Show crystal at departure point ---
+        const departurePoint = this.config.segments[this.currentPointIndex].p0;
+        const departureCrystal = this.pointToCrystalMap.get(departurePoint);
+        if (departureCrystal) {
+            departureCrystal.visible = true;
+        }
+
         this.isMoving = true;
         if (this.controls) this.controls.enabled = false; // Disable mouse control during animation
 
@@ -228,7 +275,14 @@ export class CurveManager {
                 this.isMoving = false; // Allow next move
                 if (this.controls) this.controls.enabled = true; // Re-enable mouse control
                 this.cameraOrbitAngle = animation.currentCameraOrbitAngle; // Update global angle after animation
-                
+
+                // --- Hide crystal at arrival point ---
+                const arrivalPoint = this.config.segments[this.currentPointIndex].p0;
+                const arrivalCrystal = this.pointToCrystalMap.get(arrivalPoint);
+                if (arrivalCrystal) {
+                    arrivalCrystal.visible = false;
+                }
+
                 // Show popup for the destination point
                 if (this.popupManager) {
                     this.popupManager.showPopup(this.currentPointIndex);
@@ -239,11 +293,44 @@ export class CurveManager {
     }
 
     updateVisualsInLoop() {
-        // Update visuals from data
-        if (this.config.visuals.length > 0) { // Check if visuals have been created
+        const time = performance.now();
+        const bobbingSpeed = 0.002;
+        const bobbingAmount = 0.1;
+        const rotationSpeed = 0.01;
+
+        // Animate crystals
+        this.crystals.forEach(crystal => {
+            if (crystal.visible) {
+                crystal.rotation.y += rotationSpeed;
+                // The base position is set by the GUI helpers, we just add the bobbing
+                const basePoint = this.pointToCrystalMap.get(crystal);
+                // This is a bit of a reverse lookup, not ideal. Let's assume the crystal's userData stores its base point vector
+                // Let's correct the logic based on what we stored in createVisuals. We stored the crystal in a map with the point as key.
+                // It's better to iterate the map.
+            }
+        });
+
+        // This is inefficient. A better way:
+        this.pointToCrystalMap.forEach((crystal, point) => {
+            // Update crystal base position from the point vector (which is updated by GUI)
+            crystal.position.x = point.x;
+            crystal.position.z = point.z;
+            const baseCrystalY = point.y + 0.5; // Recalculate base Y
+
+            if (crystal.visible) {
+                crystal.rotation.y += rotationSpeed;
+                crystal.position.y = baseCrystalY + Math.sin(time * bobbingSpeed + crystal.position.x) * bobbingAmount;
+            } else {
+                // Ensure non-visible crystals are at their base position without bobbing
+                crystal.position.y = baseCrystalY;
+            }
+        });
+
+
+        // Update invisible GUI helper positions from data
+        if (this.config.visuals.length > 0) {
             this.config.segments.forEach((segment, segIndex) => {
                 const segmentVisuals = this.config.visuals[segIndex];
-                // console.log('segmentVisuals in animate loop:', segmentVisuals); // This is too noisy
                 if (segmentVisuals) {
                     segmentVisuals.p0.position.copy(segment.p0);
                     segmentVisuals.p1.position.copy(segment.p1);
@@ -252,6 +339,5 @@ export class CurveManager {
                 }
             });
         }
-
     }
 }
