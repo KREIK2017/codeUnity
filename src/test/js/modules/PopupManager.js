@@ -72,7 +72,7 @@ class PopupManager {
                 this.featuresList.appendChild(li);
             });
 
-            this.container.style.display = 'flex'; // Use flex for the new layout
+            this.container.classList.add('visible'); // Use class to trigger animation
             Logger.info(`Showing popup for point ${pointIndex}`);
             document.dispatchEvent(new Event('popup-opened')); // Dispatch event
         } else {
@@ -81,7 +81,7 @@ class PopupManager {
     }
 
     hidePopup() {
-        this.container.style.display = 'none';
+        this.container.classList.remove('visible'); // Use class to trigger animation
         document.dispatchEvent(new Event('popup-closed')); // Dispatch event
     }
 }
