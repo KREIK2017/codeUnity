@@ -194,104 +194,102 @@ export class CurveManager {
 
     }
 
-    move(direction) {
-        if (!this.config.curvePath || this.isMoving) return;
-
-        // --- Show crystal at departure point ---
-        const departurePoint = this.config.segments[this.currentPointIndex].p0;
-        const departureCrystal = this.pointToCrystalMap.get(departurePoint);
-        if (departureCrystal) {
-            departureCrystal.visible = true;
-        }
-
-        this.isMoving = true;
-        if (this.controls) this.controls.enabled = false; // Disable mouse control during animation
-
-        const numPoints = this.config.segments.length;
-        const previousPointIndex = this.currentPointIndex;
-
-        // 1. Determine target index
-        if (direction === 'forward') {
-            this.currentPointIndex = (this.currentPointIndex + 1) % numPoints;
-        } else {
-            this.currentPointIndex = (this.currentPointIndex - 1 + numPoints) % numPoints;
-        }
-
-        // 2. Get the specific curve segment to travel along
-        // If moving forward, we use the curve starting at the previous index.
-        // If moving backward, we use the curve starting at the new (target) index.
-        const curveIndex = (direction === 'forward') ? previousPointIndex : this.currentPointIndex;
-        const curve = this.config.curvePath.curves[curveIndex];
-
-        // Calculate target camera orbit angle
-        const angleStep = Math.PI / 3; // 45 degrees per segment
-        const targetCameraOrbitAngle = (direction === 'forward') ? this.cameraOrbitAngle + angleStep : this.cameraOrbitAngle - angleStep;
-
-        // 3. Animate progress along the curve and camera orbit angle
-        const animation = {
-            progress: (direction === 'forward') ? 0 : 1, // For cube movement along segment
-            currentCameraOrbitAngle: this.cameraOrbitAngle // For camera orbit angle
-        };
-        const targetProgress = (direction === 'forward') ? 1 : 0;
-
-        gsap.to(animation, {
-            progress: targetProgress,
-            currentCameraOrbitAngle: targetCameraOrbitAngle, // Animate camera angle directly
-            duration: 2.0, // Duration for moving between two points
-            ease: 'power1.inOut',
-            onUpdate: () => {
-                // Get position and tangent from the curve based on progress
-                const newPosition = curve.getPointAt(animation.progress);
-                const tangent = curve.getTangentAt(animation.progress);
-                const lookAtPosition = new THREE.Vector3().addVectors(newPosition, tangent);
-
-                // Update cube position and orientation
-                this.fallingCube.position.copy(newPosition);
-                if (direction === 'forward') {
-                    this.fallingCube.lookAt(lookAtPosition);
-                } else {
-                    // When going backward, we need to invert the lookAt direction
-                    const backwardLookAt = new THREE.Vector3().subVectors(newPosition, tangent);
-                    this.fallingCube.lookAt(backwardLookAt);
-                }
-
-                // Update camera to orbit the cube based on animated angle
-                const orbitRadius = 8; // Distance of camera from cube
-                const orbitHeight = 5; // Height of camera above cube
-
-                const cameraX = newPosition.x + Math.sin(animation.currentCameraOrbitAngle) * orbitRadius;
-                const cameraZ = newPosition.z + Math.cos(animation.currentCameraOrbitAngle) * orbitRadius;
-                const cameraY = newPosition.y + orbitHeight;
-
-                // Frame-rate independent lerp for smooth camera movement
-                const targetCameraPos = new THREE.Vector3(cameraX, cameraY, cameraZ);
-                const delta = gsap.ticker.deltaRatio(); // Adjusts for frame rate (e.g., 0.5 for 120fps, 2 for 30fps)
-                const alpha = 1 - Math.pow(0.9, delta); // 0.9 is (1 - original_alpha_of_0.1)
-                this.camera.position.lerp(targetCameraPos, alpha);
-
-                this.camera.lookAt(newPosition);
-            },
-            onComplete: () => {
-                this.isMoving = false; // Allow next move
-                if (this.controls) this.controls.enabled = true; // Re-enable mouse control
-                this.cameraOrbitAngle = animation.currentCameraOrbitAngle; // Update global angle after animation
-
-                // --- Hide crystal at arrival point ---
-                const arrivalPoint = this.config.segments[this.currentPointIndex].p0;
-                const arrivalCrystal = this.pointToCrystalMap.get(arrivalPoint);
-                if (arrivalCrystal) {
-                    arrivalCrystal.visible = false;
-                }
-
-                // Show popup for the destination point
-                if (this.popupManager) {
-                    this.popupManager.showPopup(this.currentPointIndex);
-                }
+        move(direction) {
+            if (!this.config.curvePath || this.isMoving) return;
+    
+            const movementDuration = 2.0;
+            const fadeDuration = 1.0;
+    
+            // --- Handle Departure Crystal (Animate In) ---
+            const departurePoint = this.config.segments[this.currentPointIndex].p0;
+            const departureCrystal = this.pointToCrystalMap.get(departurePoint);
+            if (departureCrystal) {
+                departureCrystal.visible = true;
+                gsap.to(departureCrystal.scale, { x: 1, y: 1, z: 1, duration: fadeDuration, ease: 'power2.out' });
+                departureCrystal.children.forEach(child => {
+                    child.material.transparent = true;
+                    gsap.to(child.material, { opacity: 1, duration: fadeDuration, ease: 'power2.out' });
+                });
             }
-        });
-
-    }
-
+    
+            this.isMoving = true;
+            if (this.controls) this.controls.enabled = false;
+    
+            // --- Determine Target and Handle Arrival Crystal (Animate Out) ---
+            const numPoints = this.config.segments.length;
+            const previousPointIndex = this.currentPointIndex;
+    
+            if (direction === 'forward') {
+                this.currentPointIndex = (this.currentPointIndex + 1) % numPoints;
+            } else {
+                this.currentPointIndex = (this.currentPointIndex - 1 + numPoints) % numPoints;
+            }
+    
+            const arrivalPoint = this.config.segments[this.currentPointIndex].p0;
+            const arrivalCrystal = this.pointToCrystalMap.get(arrivalPoint);
+            if (arrivalCrystal) {
+                const animationDelay = Math.max(0, movementDuration - fadeDuration);
+                gsap.to(arrivalCrystal.scale, { x: 0.01, y: 0.01, z: 0.01, duration: fadeDuration, ease: 'power2.in', delay: animationDelay });
+                arrivalCrystal.children.forEach(child => {
+                    child.material.transparent = true;
+                    gsap.to(child.material, { opacity: 0, duration: fadeDuration, ease: 'power2.in', delay: animationDelay });
+                });
+            }
+            
+            // --- Animate Robot and Camera ---
+            const curveIndex = (direction === 'forward') ? previousPointIndex : this.currentPointIndex;
+            const curve = this.config.curvePath.curves[curveIndex];
+            const angleStep = Math.PI / 3;
+            const targetCameraOrbitAngle = (direction === 'forward') ? this.cameraOrbitAngle + angleStep : this.cameraOrbitAngle - angleStep;
+            const animation = {
+                progress: (direction === 'forward') ? 0 : 1,
+                currentCameraOrbitAngle: this.cameraOrbitAngle
+            };
+            const targetProgress = (direction === 'forward') ? 1 : 0;
+    
+            gsap.to(animation, {
+                progress: targetProgress,
+                currentCameraOrbitAngle: targetCameraOrbitAngle,
+                duration: movementDuration,
+                ease: 'power1.inOut',
+                onUpdate: () => {
+                    const newPosition = curve.getPointAt(animation.progress);
+                    const tangent = curve.getTangentAt(animation.progress);
+                    const lookAtPosition = new THREE.Vector3().addVectors(newPosition, tangent);
+    
+                    this.fallingCube.position.copy(newPosition);
+                    if (direction === 'forward') {
+                        this.fallingCube.lookAt(lookAtPosition);
+                    } else {
+                        const backwardLookAt = new THREE.Vector3().subVectors(newPosition, tangent);
+                        this.fallingCube.lookAt(backwardLookAt);
+                    }
+    
+                    const orbitRadius = 8;
+                    const orbitHeight = 5;
+                    const cameraX = newPosition.x + Math.sin(animation.currentCameraOrbitAngle) * orbitRadius;
+                    const cameraZ = newPosition.z + Math.cos(animation.currentCameraOrbitAngle) * orbitRadius;
+                    const cameraY = newPosition.y + orbitHeight;
+    
+                    const targetCameraPos = new THREE.Vector3(cameraX, cameraY, cameraZ);
+                    const delta = gsap.ticker.deltaRatio();
+                    const alpha = 1 - Math.pow(0.9, delta);
+                    this.camera.position.lerp(targetCameraPos, alpha);
+    
+                    this.camera.lookAt(newPosition);
+                },
+                onComplete: () => {
+                    this.isMoving = false;
+                    if (this.controls) this.controls.enabled = true;
+                    this.cameraOrbitAngle = animation.currentCameraOrbitAngle;
+                    
+                    // Show popup for the destination point
+                    if (this.popupManager) {
+                        this.popupManager.showPopup(this.currentPointIndex);
+                    }
+                }
+            });
+        }
     updateVisualsInLoop() {
         const time = performance.now();
         const bobbingSpeed = 0.002;
