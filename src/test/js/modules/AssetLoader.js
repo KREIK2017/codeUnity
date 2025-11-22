@@ -3,7 +3,7 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js';
 import { LowPolyWater } from '../LowPolyWater.js';
-import modelUrl from '../../UnityCode_Island.glb';
+import modelUrl from '../../UnityCode_Island_transform.glb';
 import fbxModelUrl from '../../R01_Animate_S.fbx';
 
 import wordpressLogoUrl from '../../textures/logos/blue-wordpress-logo-hd-picture-3.png';

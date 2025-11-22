@@ -134,7 +134,7 @@ class AnimationManager {
 
         // Animate the hook's position to match the stretch
         craneTl.to(hookParts.map(part => part.position), {
-            z: "+=75", // Positive value to move "down"
+            y: "-=2.5", // Positive value to move "down"
         }, "<");
 
         this.addLoopingTimeline(craneTl);
