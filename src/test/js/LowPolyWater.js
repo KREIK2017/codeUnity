@@ -105,28 +105,61 @@ export class LowPolyWater {
     // 2. Ось сама функція, яка ховає хвилі.
     // Вона проходить по всіх вершинах води і перевіряє, чи є над ними модель острова.
     _createIslandMask(islandModel) {
+        console.time('Island Mask Calculation');
+
         this.isUnderIsland = new Array(this.surfaceMesh.geometry.attributes.position.count).fill(false);
         const raycaster = new THREE.Raycaster();
         const down = new THREE.Vector3(0, -1, 0);
         const vertex = new THREE.Vector3();
 
         const positionAttribute = this.surfaceMesh.geometry.attributes.position;
-        const vertexCount = positionAttribute.count;
+        
+        // --- OPTIMIZATION START ---
+        // Calculate the bounding box of the island in World Space
+        const islandBox = new THREE.Box3().setFromObject(islandModel);
 
-        for (let i = 0; i < vertexCount; i++) {
-            vertex.fromBufferAttribute(positionAttribute, i);
+        // Transform the bounding box into the Water's Local Space
+        const inverseWaterMatrix = this.mesh.matrixWorld.clone().invert();
+        const localIslandBox = islandBox.clone().applyMatrix4(inverseWaterMatrix);
 
-            // Transform vertex to world coordinates
-            vertex.applyMatrix4(this.surfaceMesh.matrixWorld);
+        // Plane constants (must match constructor)
+        const planeSize = 1000;
+        const segments = 500;
+        const halfSize = planeSize / 2;
+        const segmentSize = planeSize / segments;
+        const verticesPerRow = segments + 1;
 
-            raycaster.set(vertex, down);
+        // Calculate grid index ranges based on the local bounding box
+        const minGridX = Math.max(0, Math.floor((localIslandBox.min.x + halfSize) / segmentSize));
+        const maxGridX = Math.min(segments, Math.ceil((localIslandBox.max.x + halfSize) / segmentSize));
+        const minGridZ = Math.max(0, Math.floor((localIslandBox.min.z + halfSize) / segmentSize));
+        const maxGridZ = Math.min(segments, Math.ceil((localIslandBox.max.z + halfSize) / segmentSize));
 
-            const intersections = raycaster.intersectObject(islandModel, true);
+        console.log(`Optimized Mask: Checking grid X[${minGridX}-${maxGridX}] Z[${minGridZ}-${maxGridZ}]`);
 
-            if (intersections.length > 0) {
-                this.isUnderIsland[i] = true;
+        // Iterate ONLY through the vertices within the bounding box
+        for (let gz = minGridZ; gz <= maxGridZ; gz++) {
+            for (let gx = minGridX; gx <= maxGridX; gx++) {
+                // Calculate the actual vertex index in the buffer
+                const i = gz * verticesPerRow + gx;
+
+                vertex.fromBufferAttribute(positionAttribute, i);
+
+                // Transform vertex to world coordinates for raycasting
+                vertex.applyMatrix4(this.surfaceMesh.matrixWorld);
+
+                raycaster.set(vertex, down);
+
+                const intersections = raycaster.intersectObject(islandModel, true);
+
+                if (intersections.length > 0) {
+                    this.isUnderIsland[i] = true;
+                }
             }
         }
+        // --- OPTIMIZATION END ---
+
+        console.timeEnd('Island Mask Calculation');
     }
 
     update() {
