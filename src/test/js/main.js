@@ -170,14 +170,13 @@ window.addEventListener('mousemove', (event) => {
     mousePosition.x = event.clientX;
     mousePosition.y = event.clientY;
 });
-
 // =================================================================
 // ASSET LOADER AND APP START
 // This is the main entry point of the application.
 // =================================================================
 
 // Initialize the asset loader with the scene, loading manager, and logo manager.
-const assetLoader = new AssetLoader(scene, loadingManager, logoManager);
+const assetLoader = new AssetLoader(scene, renderer, loadingManager, logoManager);
 
 // Start loading all assets. The .then() block executes after everything is loaded.
 assetLoader.loadAll().then(assets => {

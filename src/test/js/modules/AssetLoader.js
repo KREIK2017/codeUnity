@@ -1,9 +1,10 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
+import { KTX2Loader } from 'three/examples/jsm/loaders/KTX2Loader.js';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js';
 import { LowPolyWater } from '../LowPolyWater.js';
-import modelUrl from '../../UnityCode_Island_transform.glb';
+import modelUrl from '../../UnityCode_Island_transform_ktx2.glb';
 import fbxModelUrl from '../../R01_Animate_S.fbx';
 
 import wordpressLogoUrl from '../../textures/logos/blue-wordpress-logo-hd-picture-3.png';
@@ -15,43 +16,41 @@ import iosLogoUrl from '../../textures/logos/icons8-apple-intelligence-100.png';
 
 export class AssetLoader {
 
-    constructor(scene, loadingManager, logoManager) {
+    constructor(scene, renderer, loadingManager, logoManager) {
         this.scene = scene;
+        this.renderer = renderer;
         this.loadingManager = loadingManager;
-        this.logoManager = logoManager; // <--- Додано цю властивість
+        this.logoManager = logoManager;
         this.assets = {}; // Тут будемо зберігати завантажені ресурси
 
         this.gltfLoader = new GLTFLoader(this.loadingManager);
         this.fbxLoader = new FBXLoader(this.loadingManager);
 
         // Налаштування DRACOLoader
-
         const dracoLoader = new DRACOLoader();
         dracoLoader.setDecoderPath('./libs/draco/gltf/');
         this.gltfLoader.setDRACOLoader(dracoLoader);
 
+        // Налаштування KTX2Loader
+        const ktx2Loader = new KTX2Loader();
+        ktx2Loader.setTranscoderPath('./libs/basis/');
+        ktx2Loader.detectSupport(this.renderer);
+        this.gltfLoader.setKTX2Loader(ktx2Loader);
     }
 
     loadAll() {
-
         const promises = [
             this.loadFallingCube(),
             this.loadIsland()
-
         ];
-
 
         return Promise.all(promises).then(() => {
             // Коли всі Promise виконані, повертаємо об'єкт з ресурсами
-
             return this.assets;
-
         });
-
     }
 
     loadFallingCube() {
-        // Цей метод ми реалізуємо на наступному кроці
         return new Promise((resolve, reject) => {
             this.fbxLoader.load(fbxModelUrl, (object) => {
                 const fallingCube = object;
@@ -87,11 +86,8 @@ export class AssetLoader {
             }, undefined, (error) => {
                 console.error('An error happened while loading the FBX model:', error);
                 reject(error); // Повідомляємо Promise про помилку
-
             });
-
         });
-
     }
 
     loadIsland() {
@@ -105,6 +101,7 @@ export class AssetLoader {
                 let landingPlane, boat, propeller1, propeller2, craneCable, craneHook1, craneHook2;
 
                 model.traverse((node) => {
+                    // console.log('Node name:', node.name); // Debug: Check available nodes
                     // Removed generic shadow casting/receiving for all meshes
                     if (node.name === 'Plane005') landingPlane = node;
                     if (node.name === 'Boat') boat = node;
@@ -190,28 +187,16 @@ export class AssetLoader {
         });
     }
 
-
-
     // Утилітарна функція, перенесена з main.js
     hasMesh(object) {
-
         if (object.isMesh || object.isSkinnedMesh) {
-
             return true;
-
         }
-
         for (const child of object.children) {
-
             if (this.hasMesh(child)) { // Звертаємось через this
-
                 return true;
-
             }
-
         }
-
         return false;
-
     }
 }
