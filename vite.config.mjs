@@ -11,7 +11,6 @@ export default defineConfig({
     server: {
         port: 3000,
         open: '/' // Вказуємо, яку сторінку відкривати
-
     },
     assetsInclude: ['**/*.glb', '**/*.fbx'],
     plugins: [ // Add the plugins array
@@ -19,6 +18,10 @@ export default defineConfig({
             targets: [{
                 src: 'libs/draco/*', // Source path relative to Vite root (src/test)
                 dest: 'libs/draco' // Destination path relative to build.outDir
+            },
+            {
+                src: 'libs/basis/*',
+                dest: 'libs/basis'
             }]
         })
     ]
