@@ -4,7 +4,7 @@ import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
 import { KTX2Loader } from 'three/examples/jsm/loaders/KTX2Loader.js';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js';
 import { LowPolyWater } from '../LowPolyWater.js';
-import modelUrl from '../../UnityCode_Island_size_ktx2.glb';
+import modelUrl from '../../UnityCode_Island02_ktx2.glb';
 import fbxModelUrl from '../../R01_Animate_S.fbx';
 
 import wordpressLogoUrl from '../../textures/logos/blue-wordpress-logo-hd-picture-3.png';
