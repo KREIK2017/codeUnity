@@ -17,7 +17,8 @@ import {
     AssetLoader, // Loads 3D models, textures, and other assets
     AnimationManager, // Manages all Three.js mixers and GSAP timelines
     Logger, // Custom logging utility for debug messages
-    PopupManager
+    PopupManager,
+    Joystick
 } from './modules/index.js';
 
 // --- Global-like variables ---
@@ -25,6 +26,9 @@ import {
 let curveManager; // Manages the animation path of the cube after it lands.
 let fallingCube; // The main cube object that the user interacts with. It's assigned after assets are loaded.
 let isInteractionEnabled = true; // Flag to control user interaction (e.g., movement).
+let joystick; // Joystick instance
+let cameraOrbitAngle = 0; // Current angle of the camera around the cube
+let isJoystickActive = false; // Flag to track if joystick is being used
 
 // --- Raycaster for Mouse Hover ---
 // This section sets up the logic for detecting when the mouse hovers over 3D objects.
@@ -109,6 +113,8 @@ const controls = null; // OrbitControls disabled as per user request
 // --- GUI & Managers ---
 // This section initializes the debugging GUI and the main managers for different functionalities.
 const gui = new GUI(); // The main GUI panel for debugging.
+gui.close(); // Close by default for all devices
+
 const lightingManager = new LightingManager(scene, renderer, camera, gui, isMobile); // Manages all lights and shadows in the scene.
 const animationManager = new AnimationManager(scene, camera, renderer); // Manages all animations (GSAP and Three.js mixers).
 const popupManager = new PopupManager(); // Manages the pop-ups that appear at curve points.
@@ -140,11 +146,22 @@ document.addEventListener('popup-closed', () => {
 
 // Listen for clicks on the navigation arrows to move the cube.
 rightArrow.addEventListener('click', () => {
-    if (isInteractionEnabled && curveManager) curveManager.move('forward');
+    if (isInteractionEnabled && curveManager) {
+        resetCameraToPath();
+        curveManager.move('forward');
+    }
 });
 leftArrow.addEventListener('click', () => {
-    if (isInteractionEnabled && curveManager) curveManager.move('backward');
+    if (isInteractionEnabled && curveManager) {
+        resetCameraToPath();
+        curveManager.move('backward');
+    }
 });
+
+function resetCameraToPath() {
+    if (!fallingCube || !curveManager) return;
+    isJoystickActive = false;
+}
 
 // Listen for keyboard arrow keys to move the cube.
 window.addEventListener('keydown', (event) => {
@@ -325,6 +342,14 @@ function startAnimation(assets) {
                 const targetCameraPosition = fallingCube.position.clone().add(cameraOffset);
                 camera.position.copy(targetCameraPosition);
                 camera.lookAt(fallingCube.position);
+
+                // Initialize Joystick
+                const joystickZone = document.getElementById('joystick-zone');
+                const joystickKnob = joystickZone.querySelector('.joystick-knob');
+                joystick = new Joystick(joystickZone, joystickKnob);
+                
+                // Calculate initial orbit angle based on camera offset
+                cameraOrbitAngle = Math.atan2(cameraOffset.x, cameraOffset.z);
             }
         }
 
@@ -336,6 +361,34 @@ function startAnimation(assets) {
             const targetCameraPosition = cubeWorldPosition.clone().add(cameraOffset);
             camera.position.lerp(targetCameraPosition, CONFIG.CAMERA_FOLLOW_SPEED); // Smoothly interpolate camera position.
             camera.lookAt(cubeWorldPosition);
+        } else if (collisionDetected && fallingCube && joystick) {
+            // Joystick Camera Control
+            const delta = joystick.getDelta();
+            const isJoystickInput = Math.abs(delta.x) > 0.1 || Math.abs(delta.y) > 0.1;
+
+            if (isInteractionEnabled && isJoystickInput) {
+                isJoystickActive = true;
+                const rotationSpeed = 0.05;
+                cameraOrbitAngle -= delta.x * rotationSpeed;
+                
+                const orbitRadius = 8; // Similar to CurveManager
+                const orbitHeight = 5;
+                
+                const cameraX = fallingCube.position.x + Math.sin(cameraOrbitAngle) * orbitRadius;
+                const cameraZ = fallingCube.position.z + Math.cos(cameraOrbitAngle) * orbitRadius;
+                const cameraY = fallingCube.position.y + orbitHeight;
+
+                camera.position.set(cameraX, cameraY, cameraZ);
+                camera.lookAt(fallingCube.position);
+            } else {
+                isJoystickActive = false;
+                // Sync cameraOrbitAngle with current camera position relative to cube
+                // This ensures that when we start using the joystick again, it continues from where we are
+                // We do this whenever the joystick is NOT controlling the camera (even if interaction is disabled)
+                const dx = camera.position.x - fallingCube.position.x;
+                const dz = camera.position.z - fallingCube.position.z;
+                cameraOrbitAngle = Math.atan2(dx, dz);
+            }
         }
 
         // Finally, render the scene from the camera's perspective.

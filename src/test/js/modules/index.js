@@ -6,3 +6,4 @@ export * from './Logger.js';
 export * from './PopupManager.js';
 // export * from './InteractionManager.js';
 export * from './AssetLoader.js';
+export * from './Joystick.js';
