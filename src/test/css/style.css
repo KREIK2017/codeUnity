@@ -4,9 +4,14 @@
     box-sizing: border-box;
 }
 
+body.no-scroll {
+    overflow: hidden;
+}
+
 html,
 body {
     overflow-x: hidden;
+    background-color: transparent;
 }
 
 canvas {

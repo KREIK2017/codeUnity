@@ -348,6 +348,9 @@ function startAnimation(assets) {
                 const joystickKnob = joystickZone.querySelector('.joystick-knob');
                 joystick = new Joystick(joystickZone, joystickKnob);
                 
+                // Disable body scrolling
+                document.body.classList.add('no-scroll');
+
                 // Calculate initial orbit angle based on camera offset
                 cameraOrbitAngle = Math.atan2(cameraOffset.x, cameraOffset.z);
             }
