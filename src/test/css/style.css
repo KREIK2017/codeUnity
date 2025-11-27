@@ -79,6 +79,7 @@ canvas {
     height: 120px;
     z-index: 100;
     display: none; /* Hidden by default, shown via JS */
+    touch-action: none;
 }
 
 @media (max-width: 768px) {
