@@ -6,8 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Test: 3D Flight 2.0</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Luckiest+Guy|Poppins&display=swap">
-  <script type="module" crossorigin src="./assets/index-iUAurzVa.js"></script>
-  <link rel="stylesheet" crossorigin href="./assets/index-Cxdydml2.css">
+  <script type="module" crossorigin src="./assets/index-3--0WLnR.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-B-mDKJlK.css">
 </head>
 
 <body>
@@ -15,7 +15,11 @@
         <div id="popup">
             <h1>WELCOME TO CODEUNITY!</h1>
             <hr>
-            <p><strong>Welcome, dear users, to our island!</strong> This project demonstrates the capabilities of Three.js and GSAP. You can freely move around the island, interact with objects, and explore its secrets. We hope you enjoy the journey! Discover hidden gems, unravel mysteries, and immerse yourself in a unique interactive experience. Our team has put a lot of effort into creating this captivating world for you to explore. Get ready for an unforgettable adventure!</p>
+            <p><strong>Welcome, dear users, to our island!</strong> This project demonstrates the capabilities of
+                Three.js and GSAP. You can freely move around the island, interact with objects, and explore its
+                secrets. We hope you enjoy the journey! Discover hidden gems, unravel mysteries, and immerse yourself in
+                a unique interactive experience. Our team has put a lot of effort into creating this captivating world
+                for you to explore. Get ready for an unforgettable adventure!</p>
             <div id="popup-preloader" class="preloader"></div>
             <button id="popup-button" disabled>Lets go!</button>
         </div>
@@ -48,6 +52,13 @@
                 <img id="info-popup-image" src="" alt="Popup Image">
             </div>
         </div>
+    </div>
+
+    <div id="welcome-message-container">
+        <img src="data:image/png;base64,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" alt="Info Icon" class="welcome-message-icon">
+        <p><strong>You are ready to explore!</strong> Scroll down to initiate your descent. After landing, use the on-screen arrow
+            buttons or your keyboard's arrow keys to navigate the island. Look around and explore our futuristic hubs by
+            moving the Mouse.</p>
     </div>
 
 </body>
