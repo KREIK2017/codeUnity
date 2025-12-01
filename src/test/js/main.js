@@ -48,6 +48,7 @@ const logoManager = new LogoManager(scene); // Initializes the manager for 3D lo
 const popupContainer = document.getElementById('popup-container');
 const popupButton = document.getElementById('popup-button');
 const popupPreloader = document.getElementById('popup-preloader');
+const welcomeMessageContainer = document.getElementById('welcome-message-container');
 
 // The LoadingManager tracks the progress of all loaded assets.
 const loadingManager = new THREE.LoadingManager();
@@ -58,6 +59,14 @@ loadingManager.onLoad = function() {
 };
 popupButton.addEventListener('click', () => {
     popupContainer.style.display = 'none'; // Hide the pop-up when the button is clicked.
+    // Show the welcome message
+    if (welcomeMessageContainer) {
+        welcomeMessageContainer.classList.add('visible');
+        // Set timeout to hide the welcome message after 10 seconds
+        setTimeout(() => {
+            welcomeMessageContainer.classList.remove('visible');
+        }, 10000); // 10000 milliseconds = 10 seconds
+    }
     // Refresh ScrollTrigger to recalculate positions after the layout change
     ScrollTrigger.refresh();
 });
