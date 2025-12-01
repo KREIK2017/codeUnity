@@ -276,6 +276,12 @@ canvas {
     transition: opacity 0.4s ease, visibility 0.4s ease;
 }
 
+.info-popup-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
 .info-popup-container.visible {
     visibility: visible;
     opacity: 1;
@@ -284,28 +290,48 @@ canvas {
 .info-popup-content {
     display: flex;
     width: 90%;
-    max-width: 1200px;
-    background-color: rgba(255, 255, 255, 0.95);
+    max-width: 900px;
+    /* Adjusted max-width to fit the reference better */
+    background-color: #FFF;
+    /* Solid white background */
     border-radius: 15px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
     overflow: hidden;
-    /* To keep the child elements within the rounded corners */
     transform: scale(0.95);
     transition: transform 0.4s ease;
+    box-shadow: 15px 14px 0 #000;
+    /* Added shadow as in popup */
 }
 
-
 /* When the popup is visible, scale its content to normal size */
-
 .info-popup-container.visible .info-popup-content {
     transform: scale(1);
 }
 
 .info-popup-left {
-    flex: 1;
+    flex: 0 0 50%;
+    /* Adjusted to 50% */
     padding: 30px;
     display: flex;
     flex-direction: column;
+}
+
+.info-popup-logo-container {
+    background-color: #FFC800;
+    /* Yellow background */
+    width: 65px;
+    height: 65px;
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 15px;
+    /* Adjusted margin */
+    /* Removed border and shadow from here to match reference */
+}
+
+#info-popup-logo {
+    max-height: 96%;
+    object-fit: contain;
 }
 
 .info-popup-right {
@@ -313,90 +339,166 @@ canvas {
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: #f0f0f0;
+    padding: 20px;
+    /* Add padding to the container */
+    background-color: transparent;
+    /* Make background transparent */
 }
 
-.info-popup-right img {
+#info-popup-scene-image {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    display: block;
+    border-radius: 20px;
 }
 
 .info-popup-left h2 {
     margin-top: 0;
     font-size: 28px;
-    color: #333;
-    border-bottom: 2px solid #eee;
-    padding-bottom: 10px;
+    color: #000;
+    border-bottom: none;
+    padding-bottom: 0;
+    margin-bottom: 5px;
+    /* Reduced margin */
+    font-family: 'Luckiest Guy', cursive;
+    text-transform: uppercase;
+}
+
+#info-popup-subtitle {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 400;
+    font-size: 16px;
+    color: #555;
     margin-bottom: 15px;
 }
 
 .info-popup-left p {
     font-size: 16px;
-    color: #555;
+    color: #000;
     margin-bottom: 20px;
     flex-grow: 1;
-    /* Allow p to take up available space */
+    font-family: 'Poppins', sans-serif;
 }
 
 .info-popup-left ul {
-    list-style-position: inside;
+    list-style: none;
+    /* Remove default bullet points */
     padding-left: 0;
+    font-weight: bold;
+    font-size: 18px;
     margin-bottom: 20px;
 }
 
 .info-popup-left li {
     margin-bottom: 8px;
     font-size: 15px;
+    color: #000;
+    font-family: 'Poppins', sans-serif;
+}
+
+.info-popup-left li::before {
+    /* Custom bullet point */
+    content: "•";
+    color: #FFC800;
+    /* Yellow bullet */
+    display: inline-block;
+    width: 1em;
+    margin-left: -1em;
 }
 
 .info-popup-left button {
     padding: 12px 25px;
-    border: none;
-    border-radius: 5px;
-    background-color: #3498db;
-    color: white;
+    border: 3px solid #000;
+    /* Black border */
+    border-radius: 10px;
+    background-color: #FFC800;
+    /* Yellow button */
+    color: #000;
+    /* Black text */
     cursor: pointer;
-    font-size: 16px;
-    transition: background-color 0.2s;
-    align-self: flex-start;
-    /* Align button to the left */
+    font-size: 20px;
+    /* Larger font size */
+    font-family: 'Luckiest Guy', cursive;
+    /* Match main popup font */
+    text-transform: uppercase;
+    transition: transform 0.1s, box-shadow 0.1s;
+    align-self: center;
+    /* Center button */
+    box-shadow: 10px 10px 0 #000;
+    /* Button shadow */
+    width: 150px;
+    /* Fixed width for button */
 }
 
 .info-popup-left button:hover {
-    background-color: #2980b9;
+    background-color: #e6b800;
+    /* Darker yellow on hover */
 }
 
+.info-popup-left button:active {
+    transform: translate(3px, 3px);
+    box-shadow: 2px 2px 0 #000;
+}
 
 /* Responsive adjustments for info popup on smaller screens */
-
 @media (max-width: 768px) {
     .info-popup-content {
         flex-direction: column;
         width: 95%;
-        padding: 20px;
-    }
-
-    .info-popup-right {
-        display: none;
-        /* Hide image on mobile to save space */
+        padding: 0;
+        /* Remove padding from content itself, add to children */
+        border: none;
+        /* Remove border on mobile */
+        box-shadow: none;
+        /* Remove shadow on mobile */
     }
 
     .info-popup-left {
+        flex: 1;
+        /* Allow left to take full width */
         padding: 20px;
+        border-right: none;
+        /* Remove separator */
+    }
+
+    .info-popup-right {
+        display: flex;
+        /* Keep image visible on mobile, adjust if needed */
+        height: 200px;
+        /* Fixed height for image container on mobile */
+        width: 100%;
+        border-top: 3px solid #000;
+        /* Separator */
+    }
+
+    #info-popup-scene-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
     }
 
     .info-popup-left h2 {
         font-size: 24px;
+        text-align: center;
     }
 
     .info-popup-left p {
         font-size: 14px;
+        text-align: center;
     }
 
     .info-popup-left button {
-        font-size: 14px;
+        font-size: 16px;
         padding: 10px 20px;
+        align-self: stretch;
+        /* Make button full width */
+        width: auto;
+    }
+
+    .info-popup-logo-container {
+        margin: 0 auto 20px auto;
+        /* Center logo on mobile */
     }
 }
 
@@ -432,22 +534,30 @@ canvas {
 
 #welcome-message-container {
     position: fixed;
-    top: 20px; /* Adjust as needed for exact position */
+    top: 20px;
+    /* Adjust as needed for exact position */
     left: 50%;
     transform: translateX(-50%);
-background: #fff;
+    background: #fff;
     padding: 15px 25px;
     border-radius: 10px;
-    display: flex; /* Use flex to align icon and text */
-    align-items: center; /* Vertically center items */
-    gap: 15px; /* Space between icon and text */
-    z-index: 999; /* Below the initial popup, above everything else */
-    max-width: 500px; /* Limit width */
+    display: flex;
+    /* Use flex to align icon and text */
+    align-items: center;
+    /* Vertically center items */
+    gap: 15px;
+    /* Space between icon and text */
+    z-index: 999;
+    /* Below the initial popup, above everything else */
+    max-width: 500px;
+    /* Limit width */
     box-shadow: 15px 14px 0 #000;
-    font-family: 'Poppins', sans-serif; /* Use a similar font */
+    font-family: 'Poppins', sans-serif;
+    /* Use a similar font */
     font-size: 16px;
     line-height: 1.4;
-    text-align: left; /* Align text to left */
+    text-align: left;
+    /* Align text to left */
 
     /* Initially hidden */
     visibility: hidden;
@@ -461,9 +571,11 @@ background: #fff;
 }
 
 .welcome-message-icon {
-    width: 30px; /* Adjust icon size */
+    width: 30px;
+    /* Adjust icon size */
     height: 30px;
-    flex-shrink: 0; /* Prevent icon from shrinking */
+    flex-shrink: 0;
+    /* Prevent icon from shrinking */
 }
 
 /* Responsive adjustments */
