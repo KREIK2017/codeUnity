@@ -64,14 +64,18 @@ canvas {
         transform: translateY(50%);
         left: 0;
         padding: 0 20px;
-        pointer-events: none; /* Allow clicking through the container */
+        pointer-events: none;
+        /* Allow clicking through the container */
     }
+
     .arrow {
         width: 60px;
         height: 60px;
         font-size: 30px;
-        pointer-events: auto; /* Re-enable pointer events for buttons */
-        background-color: rgba(0, 0, 0, 0.3); /* Slightly more transparent on mobile */
+        pointer-events: auto;
+        /* Re-enable pointer events for buttons */
+        background-color: rgba(0, 0, 0, 0.3);
+        /* Slightly more transparent on mobile */
     }
 }
 
@@ -83,13 +87,15 @@ canvas {
     width: 120px;
     height: 120px;
     z-index: 100;
-    display: none; /* Hidden by default, shown via JS */
+    display: none;
+    /* Hidden by default, shown via JS */
     touch-action: none;
 }
 
 @media (max-width: 768px) {
     #joystick-zone {
-        display: block; /* Show on mobile */
+        display: block;
+        /* Show on mobile */
     }
 }
 
@@ -112,7 +118,7 @@ canvas {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
     cursor: pointer;
 }
 
@@ -126,74 +132,120 @@ canvas {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgba(0, 0, 0, 0.3);
     display: flex;
     justify-content: center;
     align-items: center;
     z-index: 1000;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
 }
 
 #popup {
-    width: 75%;
-    max-width: 600px;
-    /* Added max-width for larger screens */
-    background-color: white;
-    padding: 40px 20px;
-    border-radius: 10px;
+    width: 90%;
+    max-width: 678px;
+    height: 556px;
+    background: #fff;
+    border-radius: 25px;
+    padding: 35px;
     text-align: center;
+    box-shadow: 15px 14px 0 #000;
+    position: relative;
+    transition: transform 0.2s, box-shadow 0.2s;
 }
 
 #popup h1 {
-    font-size: 50px;
-    margin-bottom: 20px;
+    font-family: 'Luckiest Guy', cursive;
+    font-weight: 400;
+    /* Regular */
+    font-size: 52px;
+    line-height: 100%;
+    letter-spacing: 0%;
+    text-align: center;
+    text-transform: uppercase;
+    color: #000;
+    margin-bottom: 30px;
+}
+
+#popup hr {
+    display: none;
 }
 
 #popup p {
-    font-size: 25px;
-    margin-bottom: 20px;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 400;
+    font-size: 21px;
+    line-height: 32px;
+    letter-spacing: 0%;
+    text-align: center;
+    color: #000;
+    height: 256px;
+    margin-bottom: 30px;
+}
+
+#popup p strong {
+    font-weight: 700;
+    font-style: bold;
 }
 
 #popup-button {
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
+    width: 175px;
+    height: 68px;
+    border: 3px solid #000;
+    border-radius: 10px;
     cursor: pointer;
-    font-size: 30px;
-    margin-top: 20px;
+    font-family: 'Luckiest Guy', cursive;
+    font-weight: 400;
+    /* Regular */
+    font-size: 28px;
+    line-height: 100%;
+    letter-spacing: 0%;
+    text-align: center;
+    vertical-align: bottom;
+    text-transform: uppercase;
+    color: #000;
+    background: #ffc800;
+    box-shadow: 10px 10px 0 #000;
+    transition: transform 0.1s, box-shadow 0.1s;
 }
 
-
 /* Responsive adjustments for smaller screens */
-
 @media (max-width: 768px) {
     #popup {
         width: 90%;
-        padding: 20px 15px;
+        padding: 30px 20px;
+        border-radius: 20px;
+        box-shadow: 8px 8px 0 #000;
     }
+
     #popup h1 {
-        font-size: 36px;
-        margin-bottom: 15px;
+        font-size: 28px;
     }
+
     #popup p {
-        font-size: 18px;
-        margin-bottom: 15px;
+        font-size: 15px;
     }
+
     #popup-button {
-        font-size: 24px;
-        padding: 8px 15px;
-        margin-top: 15px;
+        font-size: 18px;
+        padding: 10px 30px;
+        border-radius: 15px;
+        /* Adjusted for smaller size */
+        box-shadow: 4px 4px 0 #000;
     }
 }
 
 #popup-button:disabled {
-    background-color: #cccccc;
-    color: #666666;
+    background: #d4d4d4;
+    color: #888;
     cursor: not-allowed;
+    box-shadow: none;
+    border-color: #999;
 }
 
-#popup-button:enabled {
-    background-color: #3498db;
-    color: white;
+#popup-button:enabled:active {
+    transform: translate(5px, 5px);
+    box-shadow: 0 0 0 #000;
 }
 
 #tooltip {
@@ -324,19 +376,24 @@ canvas {
         width: 95%;
         padding: 20px;
     }
+
     .info-popup-right {
         display: none;
         /* Hide image on mobile to save space */
     }
+
     .info-popup-left {
         padding: 20px;
     }
+
     .info-popup-left h2 {
         font-size: 24px;
     }
+
     .info-popup-left p {
         font-size: 14px;
     }
+
     .info-popup-left button {
         font-size: 14px;
         padding: 10px 20px;
@@ -362,6 +419,7 @@ canvas {
     0% {
         transform: rotate(0deg);
     }
+
     100% {
         transform: rotate(360deg);
     }
