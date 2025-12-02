@@ -2,46 +2,46 @@ import { Logger } from './Logger.js';
 
 const popupData = {
     0: { 
-        title: 'Точка 1: Старт', 
+        title: 'Точка 1', 
         subtitle: 'Початок вашої подорожі.',
         content: 'Вирушайте у подорож! Це початкова точка нашої кривої.',
         image: 'textures/logos/React.png',
         features: ['Feature A', 'Feature B', 'Feature C']
     },
     1: { 
-        title: 'Точка 2: Перший поворот', 
+        title: 'Website Design & WordPress Development', 
         subtitle: 'You succcefully riched first point.',
-        content: 'Ви успішно досягли першого вигину. Продовжуйте рух!',
-        image: 'textures/logos/HTML5_logo_and_wordmark.svg.png',
-        features: ['Discovered Turn 1', 'Speed Boost', 'New Scenery']
+        content: 'We create functional, user-friendly WordPress websites with thoughtful UI/UX. Full-cycle service from discovery and design to development, testing, launch, and ongoing support. Your site will be fast, responsive, and easy to manage.',
+        image: 'textures/logos/blue-wordpress-logo-hd-picture-3.png',
+        features: ['Feature A', 'Feature B', 'Feature C']
     },
     2: { 
-        title: 'Точка 3: Другий поворот', 
+        title: 'Managed WordPress Hosting', 
         subtitle: 'Подолано ще один етап.',
-        content: 'Ще один поворот позаду. Попереду нові виклики.',
+        content: 'Reliable hosting with 24/7 support. Speed optimization, security monitoring, backups, and updates handled for you. Optional add-ons include development support, plugin work, and detailed site health reports.',
         image: 'textures/logos/CSS3_logo_and_wordmark.svg.png',
-        features: ['Sharp Curve', 'Mountain View', 'Next Stop: W-Path']
+        features: ['Feature A', 'Feature B', 'Feature C']
     },
     3: { 
-        title: 'Точка 4: W-форма', 
+        title: '3D Architectural & Product Visualizations', 
         subtitle: 'Складний відрізок шляху.',
-        content: 'Ви входите в складну ділянку у формі літери W.',
-        image: 'textures/logos/python-emblem.png',
-        features: ['Complex Path', 'Requires Precision', 'Good Luck!']
+        content: 'Photorealistic 3D renderings, virtual tours, and animations for residential, commercial, and multifamily projects. Ideal for architecture firms needing high-quality visualizations and product presentations.',
+        image: 'textures/logos/HTML5_logo_and_wordmark.svg.png',
+        features: ['Feature A', 'Feature B', 'Feature C']
     },
     4: { 
-        title: 'Точка 5: Середина W', 
+        title: 'Shopify eCommerce Solutions', 
         subtitle: 'Екватор складного шляху.',
-        content: 'Ви в центрі W-подібної кривої.',
+        content: 'Fully optimized Shopify stores for effortless selling. Custom design, product management, SEO, smooth checkout, and 3D product visuals. Advanced features include marketing automation, social ads, loyalty programs, subscriptions, CRM integration, and custom apps/themes.',
         image: 'textures/logos/Shopify-Logo-PNG-HD.png',
-        features: ['Midpoint Reached', 'Halfway Through', 'Keep Going']
+        features: ['Feature A', 'Feature B', 'Feature C']
     },
     5: { 
-        title: 'Точка 6: Кінець W', 
+        title: 'Web & Mobile Application Development', 
         subtitle: 'Випробування майже завершено.',
-        content: 'Ви пройшли W-подібну ділянку. Майже у мети!',
-        image: 'textures/logos/blue-wordpress-logo-hd-picture-3.png',
-        features: ['W-Path Conquered', 'Final Stretch', 'Almost Home']
+        content: 'End-to-end web and mobile app development, including UI/UX design, native and hybrid apps, complex integrations (SaaS, CRM, ERP, SCADA), and managed hosting. Built with modern technologies like Node.js, PHP, React, Vue, Angular, Golang, and Rust for seamless, scalable solutions.',
+        image: 'textures/logos/React.png',
+        features: ['Feature A', 'Feature B', 'Feature C']
     },
 };
 
