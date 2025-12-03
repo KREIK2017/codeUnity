@@ -22,6 +22,10 @@ export default defineConfig({
             {
                 src: 'libs/basis/*',
                 dest: 'libs/basis'
+            },
+            {
+                src: 'textures/**/*',
+                dest: 'textures'
             }]
         })
     ]
