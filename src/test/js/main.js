@@ -18,7 +18,8 @@ import {
     AnimationManager, // Manages all Three.js mixers and GSAP timelines
     Logger, // Custom logging utility for debug messages
     PopupManager,
-    Joystick
+    Joystick,
+    Preloader
 } from './modules/index.js';
 
 // --- Global-like variables ---
@@ -50,12 +51,28 @@ const popupButton = document.getElementById('popup-button');
 const popupPreloader = document.getElementById('popup-preloader');
 const welcomeMessageContainer = document.getElementById('welcome-message-container');
 
+// Initialize and start the SVG preloader animation
+const preloader = new Preloader('#popup-preloader');
+preloader.start();
+
 // The LoadingManager tracks the progress of all loaded assets.
 const loadingManager = new THREE.LoadingManager();
 loadingManager.onLoad = function() {
     Logger.assetLoad('All models loaded via LoadingManager');
-    if (popupPreloader) popupPreloader.style.display = 'none'; // Hide preloader
-    popupButton.disabled = false; // Enable the button once everything is loaded.
+
+    // Introduce a delay before hiding the preloader and showing the button
+    gsap.delayedCall(2, () => { // 2-second delay
+        preloader.hide(); // Call the hide method on the preloader instance
+        
+        // Enable the button and fade it in
+        popupButton.disabled = false; 
+        gsap.to(popupButton, {
+            opacity: 1,
+            visibility: 'visible',
+            duration: 0.5,
+            delay: 0.5 // Delay to start after preloader fade out
+        });
+    });
 };
 popupButton.addEventListener('click', () => {
     popupContainer.style.display = 'none'; // Hide the pop-up when the button is clicked.
