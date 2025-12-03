@@ -31,18 +31,18 @@ export class Preloader {
 
         this.container.innerHTML = ''; 
         this.container.style.position = 'relative'; 
-        this.container.style.width = '158px';
-        this.container.style.height = '131px';
+        this.container.style.width = '110.6px';
+        this.container.style.height = '91.7px';
         this.container.style.margin = '20px auto';
 
         const elements = this.frames.map((svgContent, index) => {
             const el = document.createElement('div');
             el.innerHTML = svgContent;
             el.style.position = 'absolute';
-            el.style.top = '0';
-            el.style.left = '0';
+            el.style.top = '50%';
+            el.style.left = '50%';
             // Scale down by 30% and promote to own rendering layer
-            el.style.transform = 'scale(0.7) translateZ(0)';
+            el.style.transform = 'translate(-50%, -50%) scale(0.7) translateZ(0)';
             // Set opacity via style attribute for immediate effect
             el.style.opacity = index === 0 ? '1' : '0'; 
             this.container.appendChild(el);

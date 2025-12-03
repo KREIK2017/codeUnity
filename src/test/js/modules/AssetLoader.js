@@ -16,11 +16,11 @@ import iosLogoUrl from '../../textures/logos/icons8-apple-intelligence-100.png';
 
 export class AssetLoader {
 
-    constructor(scene, renderer, loadingManager, logoManager) {
+    constructor(scene, renderer, loadingManager) {
         this.scene = scene;
         this.renderer = renderer;
         this.loadingManager = loadingManager;
-        this.logoManager = logoManager;
+
         this.assets = {}; // Тут будемо зберігати завантажені ресурси
 
         this.gltfLoader = new GLTFLoader(this.loadingManager);
@@ -113,14 +113,7 @@ export class AssetLoader {
                     if (node.name === 'wheel' || node.name.startsWith('car_baked001')) {
                         wheelObjects.push(node);
                     }
-                    // Використовуємо this.logoManager та імпортовані URL
-                    if (node.name === 'Cube_Cube001') this.logoManager.addLogo(node, wordpressLogoUrl);
-                    if (node.name === 'Cube') this.logoManager.addLogo(node, cssLogoUrl);
-                    if (node.name === 'Downtown_Center_City1456') this.logoManager.addLogo(node, htmlLogoUrl);
-                    if (node.name === 'Mesh011') this.logoManager.addLogo(node, shopifyLogoUrl);
-                    if (node.name === 'MainBridge') this.logoManager.addLogo(node, androidLogoUrl);
-                    if (node.name === 'BackBridge') this.logoManager.addLogo(node, iosLogoUrl);
-                });
+                                    });
 
                 this.scene.add(model);
 

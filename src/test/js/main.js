@@ -12,7 +12,7 @@ import { CONFIG } from './config.js'; // Global configuration settings for the a
 import {
     CurveManager, // Manages Bezier curves and cube movement along them
     LightingManager, // Handles scene lighting, shadows, and environment
-    LogoManager, // Manages the display and interaction of 3D logos
+     // Manages the display and interaction of 3D logos
     AssetLoader, // Loads 3D models, textures, and other assets
     AnimationManager, // Manages all Three.js mixers and GSAP timelines
     Logger, // Custom logging utility for debug messages
@@ -37,7 +37,7 @@ let isJoystickActive = false; // Flag to track if joystick is being used
 // --- Scene Setup --- 
 // The scene is the container for all 3D objects, lights, and cameras.
 const scene = new THREE.Scene();
-const logoManager = new LogoManager(scene); // Initializes the manager for 3D logos.
+
 
 // --- Pop-up --- 
 // This handles the initial loading screen that appears when the application starts.
@@ -204,7 +204,7 @@ window.addEventListener('resize', () => {
 // =================================================================
 
 // Initialize the asset loader with the scene, loading manager, and logo manager.
-const assetLoader = new AssetLoader(scene, renderer, loadingManager, logoManager);
+const assetLoader = new AssetLoader(scene, renderer, loadingManager);
 
 // Start loading all assets. The .then() block executes after everything is loaded.
 assetLoader.loadAll().then(assets => {
@@ -256,7 +256,7 @@ function startAnimation(assets) {
         // Update managers and other animated elements on each frame.
         if (curveManager) { curveManager.updateVisualsInLoop(); } // Update the curve visuals if they exist.
         animationManager.update(); // Update all animations (mixers and GSAP).
-        if (logoManager) { logoManager.update(camera); } // Update logos to face the camera.
+        
 
         // --- Water and Boat Logic ---
         // This section handles the animation of the water and the boat on its surface.
