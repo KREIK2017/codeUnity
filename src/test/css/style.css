@@ -481,30 +481,25 @@ canvas {
     .info-popup-content {
         flex-direction: column;
         width: 95%;
+        max-height: 90vh;
         padding: 0;
-        /* Remove padding from content itself, add to children */
-        border: none;
-        /* Remove border on mobile */
-        box-shadow: none;
-        /* Remove shadow on mobile */
+        border-radius: 15px;
+        box-shadow: 8px 8px 0 #000;
+        overflow: hidden;
     }
 
     .info-popup-left {
-        flex: 1;
-        /* Allow left to take full width */
-        padding: 20px;
-        border-right: none;
-        /* Remove separator */
+        padding: 20px 20px 15px 20px;
+        overflow-y: auto;
+        max-height: calc(90vh - 150px);
     }
 
     .info-popup-right {
         display: flex;
-        /* Keep image visible on mobile, adjust if needed */
-        height: 200px;
-        /* Fixed height for image container on mobile */
+        height: 150px;
         width: 100%;
         border-top: 3px solid #000;
-        /* Separator */
+        flex-shrink: 0;
     }
 
     #info-popup-scene-image {
@@ -514,26 +509,47 @@ canvas {
     }
 
     .info-popup-left h2 {
-        font-size: 24px;
-        text-align: center;
+        font-size: 20px;
+        text-align: left;
+        margin-bottom: 3px;
     }
 
     .info-popup-left p {
-        font-size: 14px;
-        text-align: center;
+        font-size: 13px;
+        text-align: left;
+        line-height: 1.5;
+        margin-bottom: 12px;
     }
 
     .info-popup-left button {
         font-size: 16px;
         padding: 10px 20px;
-        align-self: stretch;
-        /* Make button full width */
-        width: auto;
+        width: 100%;
+        box-shadow: 5px 5px 0 #000;
     }
 
     .info-popup-logo-container {
-        margin: 0 auto 20px auto;
-        /* Center logo on mobile */
+        margin-bottom: 10px;
+        width: 50px;
+        height: 50px;
+    }
+
+    .info-popup-header {
+        margin-bottom: 12px;
+    }
+
+    #info-popup-subtitle {
+        font-size: 12px;
+        margin-bottom: 10px;
+    }
+
+    .info-popup-left ul {
+        margin-bottom: 15px;
+    }
+
+    .info-popup-left li {
+        font-size: 13px;
+        margin-bottom: 6px;
     }
 }
 
