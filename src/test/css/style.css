@@ -216,27 +216,68 @@ canvas {
 @media (max-width: 768px) {
     #popup {
         width: 90%;
-        padding: 30px 20px;
+        height: auto;
+        max-height: 85vh;
+        padding: 25px 20px;
         border-radius: 20px;
         box-shadow: 8px 8px 0 #000;
+        overflow-y: auto;
     }
 
     #popup h1 {
-        font-size: 28px;
+        font-size: 24px;
+        margin-bottom: 15px;
+        line-height: 110%;
     }
 
     #popup p {
-        font-size: 15px;
+        font-size: 14px;
+        line-height: 22px;
+        height: auto;
+        margin-bottom: 20px;
     }
 
     #popup-button {
         font-size: 18px;
-        padding: 10px 30px;
-        border-radius: 15px;
-        /* Adjusted for smaller size */
-        box-shadow: 4px 4px 0 #000;
+        width: 140px;
+        height: 55px;
+        padding: 10px 20px;
+        border-radius: 10px;
+        box-shadow: 5px 5px 0 #000;
     }
 }
+
+/* Extra small screens - very compact layout */
+@media (max-width: 480px) {
+    #popup {
+        width: 95%;
+        max-height: 90vh;
+        padding: 20px 15px;
+    }
+
+    #popup h1 {
+        font-size: 20px;
+        margin-bottom: 12px;
+    }
+
+    #popup p {
+        font-size: 13px;
+        line-height: 20px;
+        margin-bottom: 15px;
+    }
+
+    #popup-preloader {
+        transform: scale(0.8);
+        margin: 10px auto;
+    }
+
+    #popup-button {
+        font-size: 16px;
+        width: 120px;
+        height: 50px;
+    }
+}
+
 
 #popup-button:disabled {
     background: #d4d4d4;
