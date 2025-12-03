@@ -3,7 +3,7 @@ import { resolve } from 'path';
 import { viteStaticCopy } from 'vite-plugin-static-copy'; // Import the plugin
 
 export default defineConfig({
-    base: '',
+    base: '/codeUnity/',
     root: 'src/test',
     build: {
         outDir: '../../dist',
