@@ -349,6 +349,8 @@ canvas {
     padding: 30px;
     display: flex;
     flex-direction: column;
+    overflow-y: auto;    /* Enable vertical scrolling */
+    max-height: 100%;    /* Ensure it respects grid row height */
 }
 
 #info-popup-close {
