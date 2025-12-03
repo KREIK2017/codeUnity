@@ -2,11 +2,10 @@ import gsap from 'gsap';
 
 const SVG_FRAME_PATHS = [
     'textures/preloader/Union.svg',
-    'textures/preloader/Union (1).svg',
-    'textures/preloader/Union (2).svg',
-    'textures/preloader/Union (3).svg',
-    'textures/preloader/Union (4).svg',
-    'textures/preloader/Union (5).svg',
+    'textures/preloader/Union_1.svg',
+    'textures/preloader/Union_2.svg',
+    'textures/preloader/Union_3.svg',
+    'textures/preloader/Union_4.svg',
 ];
 
 export class Preloader {
