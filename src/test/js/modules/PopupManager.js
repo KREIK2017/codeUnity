@@ -77,7 +77,7 @@ class PopupManager {
             }
         });
 
-        Logger.info('PopupManager initialized.');
+        // Logger.info('PopupManager initialized.');
     }
 
     showPopup(pointIndex) {

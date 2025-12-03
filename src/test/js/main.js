@@ -3,7 +3,6 @@ import * as THREE from 'three'; // Core Three.js library for 3D graphics
 // import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'; // Camera controls for orbiting around a target
 import gsap from 'gsap'; // Animation library for JavaScript
 import { ScrollTrigger } from 'gsap/ScrollTrigger'; // GSAP plugin for scroll-based animations
-import { GUI } from 'lil-gui'; // Lightweight GUI for debugging and development
 
 // Register GSAP plugins
 gsap.registerPlugin(ScrollTrigger);
@@ -33,11 +32,7 @@ let isJoystickActive = false; // Flag to track if joystick is being used
 
 // --- Raycaster for Mouse Hover ---
 // This section sets up the logic for detecting when the mouse hovers over 3D objects.
-const raycaster = new THREE.Raycaster(); // Used to cast rays from the camera to the mouse position.
-const mouse = new THREE.Vector2(); // Stores normalized mouse coordinates (from -1 to +1).
-const mousePosition = new THREE.Vector2(); // Stores the mouse position in pixels.
-let intersectedObject = null; // Holds the object currently being hovered over.
-const tooltip = document.getElementById('tooltip'); // The HTML element used to display tooltips.
+// Raycaster variables removed as per user request.
 
 // --- Scene Setup --- 
 // The scene is the container for all 3D objects, lights, and cameras.
@@ -138,10 +133,8 @@ const controls = null; // OrbitControls disabled as per user request
 
 // --- GUI & Managers ---
 // This section initializes the debugging GUI and the main managers for different functionalities.
-const gui = new GUI(); // The main GUI panel for debugging.
-gui.close(); // Close by default for all devices
 
-const lightingManager = new LightingManager(scene, renderer, camera, gui, isMobile); // Manages all lights and shadows in the scene.
+const lightingManager = new LightingManager(scene, renderer, camera, isMobile); // Manages all lights and shadows in the scene.
 const animationManager = new AnimationManager(scene, camera, renderer); // Manages all animations (GSAP and Three.js mixers).
 const popupManager = new PopupManager(); // Manages the pop-ups that appear at curve points.
 
@@ -205,14 +198,6 @@ window.addEventListener('resize', () => {
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
 });
-
-// Track mouse movement for the raycaster to detect hovers.
-window.addEventListener('mousemove', (event) => {
-    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-    mousePosition.x = event.clientX;
-    mousePosition.y = event.clientY;
-});
 // =================================================================
 // ASSET LOADER AND APP START
 // This is the main entry point of the application.
@@ -246,7 +231,7 @@ assetLoader.loadAll().then(assets => {
 
     if (craneCable && craneHook1 && craneHook2) {
         animationManager.createCraneAnimation(craneCable, [craneHook1, craneHook2]);
-        Logger.info('Crane animation initialized.');
+        // Logger.info('Crane animation initialized.');
     } else {
         Logger.error('Could not find all crane parts from AssetLoader for animation.');
     }
@@ -266,40 +251,7 @@ function startAnimation(assets) {
     function animate() {
         requestAnimationFrame(animate); // Schedule the next frame.
 
-        // --- Raycasting for Tooltip ---
-        // This logic checks if the mouse is hovering over any interactive objects and displays a tooltip.
-        if (assets.model) {
-            raycaster.setFromCamera(mouse, camera); // Update the raycaster's position.
-            const intersects = raycaster.intersectObject(assets.model, true); // Find intersections.
-
-            if (intersects.length > 0) {
-                // Find the parent object with a meaningful name to display in the tooltip.
-                let objectToShow = intersects[0].object;
-                let objectName = '';
-                while (objectToShow && !objectName) {
-                    if (objectToShow.name && objectToShow.name.trim() !== '' && objectToShow.name.trim() !== 'Scene') {
-                        objectName = objectToShow.name;
-                    }
-                    objectToShow = objectToShow.parent;
-                }
-
-                if (objectName) {
-                    intersectedObject = intersects[0].object;
-                    tooltip.style.display = 'block';
-                    tooltip.textContent = objectName;
-                    tooltip.style.left = (mousePosition.x + 10) + 'px';
-                    tooltip.style.top = (mousePosition.y + 10) + 'px';
-                } else {
-                    tooltip.style.display = 'none';
-                    intersectedObject = null;
-                }
-            } else {
-                if (intersectedObject) {
-                    tooltip.style.display = 'none';
-                }
-                intersectedObject = null;
-            }
-        }
+        // Raycasting for Tooltip functionality removed as per user request.
 
         // Update managers and other animated elements on each frame.
         if (curveManager) { curveManager.updateVisualsInLoop(); } // Update the curve visuals if they exist.
@@ -336,14 +288,14 @@ function startAnimation(assets) {
 
             // Check for intersection between the two bounding boxes.
             if (cubeBoundingBox.intersectsBox(planeBoundingBox)) {
-                Logger.collision('Куб торкнувся Plane005! Керування стрілками активовано.');
+                // Logger.collision('Куб торкнувся Plane005! Керування стрілками активовано.');
                 collisionDetected = true; // Set the flag to prevent this block from running again.
                 animationManager.killOneOffTimelines(); // Stop the initial falling animation.
 
                 if (navigationArrows) navigationArrows.style.display = 'flex'; // Show navigation controls.
 
                 // Initialize the CurveManager to handle movement along the path.
-                curveManager = new CurveManager(scene, gui, camera, controls, fallingCube, popupManager);
+                curveManager = new CurveManager(scene, camera, controls, fallingCube, popupManager);
                 const hardcodedStartPoint = curveManager.config.segments[0].p0;
                 fallingCube.position.copy(hardcodedStartPoint); // Snap the cube to the start of the path.
 
@@ -362,7 +314,6 @@ function startAnimation(assets) {
                 fallingCube.rotation.y += Math.PI / 2; // Apply rotation correction.
 
                 curveManager.createVisuals(); // Create visual helpers for the curve.
-                curveManager.setupGUI(); // Set up GUI controls for the curve.
 
                 // Snap the camera to the cube's new position.
                 const targetCameraPosition = fallingCube.position.clone().add(cameraOffset);
@@ -373,7 +324,7 @@ function startAnimation(assets) {
                 const joystickZone = document.getElementById('joystick-zone');
                 const joystickKnob = joystickZone.querySelector('.joystick-knob');
                 joystick = new Joystick(joystickZone, joystickKnob);
-                
+
                 // Disable body scrolling
                 document.body.classList.add('no-scroll');
 

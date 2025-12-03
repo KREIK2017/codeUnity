@@ -2,11 +2,10 @@ import * as THREE from 'three';
 import { Sky } from 'three/examples/jsm/objects/Sky.js';
 
 export class LightingManager {
-    constructor(scene, renderer, camera, gui, isMobile) { // Added isMobile
+    constructor(scene, renderer, camera, isMobile) { // Added isMobile
         this.scene = scene;
         this.renderer = renderer;
         this.camera = camera;
-        this.gui = gui;
         this.isMobile = isMobile; // Store isMobile flag
 
         this.sky = new Sky();
@@ -25,7 +24,6 @@ export class LightingManager {
 
         this.initSky();
         this.initLights();
-        this.setupGUI();
         this.guiChanged();
     }
 
@@ -92,20 +90,6 @@ export class LightingManager {
         if (this.renderer) {
             this.renderer.toneMappingExposure = this.effectController.exposure;
 
-        }
-    }
-
-    setupGUI() {
-        if (this.gui) {
-            const skyFolder = this.gui.addFolder('Sky');
-            skyFolder.add(this.effectController, 'turbidity', 0.0, 20.0, 0.1).onChange(() => this.guiChanged());
-            skyFolder.add(this.effectController, 'rayleigh', 0.0, 4.0, 0.001).onChange(() => this.guiChanged());
-            skyFolder.add(this.effectController, 'mieCoefficient', 0.0, 0.1, 0.001).onChange(() => this.guiChanged());
-            skyFolder.add(this.effectController, 'mieDirectionalG', 0.0, 1.0, 0.001).onChange(() => this.guiChanged());
-            skyFolder.add(this.effectController, 'elevation', 0, 90, 0.1).onChange(() => this.guiChanged());
-            skyFolder.add(this.effectController, 'azimuth', 0, 360, 0.1).onChange(() => this.guiChanged());
-            skyFolder.add(this.effectController, 'exposure', 0.0, 1.0, 0.0001).onChange(() => this.guiChanged());
-            skyFolder.open();
         }
     }
 }

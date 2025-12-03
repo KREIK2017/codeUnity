@@ -11,7 +11,7 @@ class AnimationManager {
         this.oneOffTimelines = []; // For animations that run once, like the initial fall
         this.clock = new THREE.Clock();
         this.initialTogglePassed = false;
-        console.log("AnimationManager initialized.");
+        // console.log("AnimationManager initialized.");
     }
 
     addLoopingTimeline(timeline) {
@@ -88,7 +88,7 @@ class AnimationManager {
         // Prevent this complex setup from running more than once
         if (cable.userData.isManuallyAnimated) return;
 
-        console.log("--- Attempting final, manual vertex animation method. ---");
+        // console.log("--- Attempting final, manual vertex animation method. ---");
 
         const positions = cable.geometry.attributes.position;
         // Create a copy of the original vertex positions to revert to

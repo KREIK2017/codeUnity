@@ -2,9 +2,8 @@ import * as THREE from 'three';
 import gsap from 'gsap';
 
 export class CurveManager {
-    constructor(scene, gui, camera, controls, fallingCube, popupManager) {
+    constructor(scene, camera, controls, fallingCube, popupManager) {
         this.scene = scene;
-        this.gui = gui;
         this.camera = camera;
         this.controls = controls;
         this.fallingCube = fallingCube;
@@ -134,36 +133,7 @@ export class CurveManager {
     }
 
 
-    setupGUI() {
-        const editorFolder = this.gui.addFolder('Curve Editor');
 
-        this.config.segments.forEach((segment, segIndex) => {
-            const segmentFolder = editorFolder.addFolder(`Segment ${segIndex + 1}`);
-
-            const p0 = segmentFolder.addFolder('Start Point (Green)');
-            p0.add(segment.p0, 'x', -20, 20).onChange(() => this._updateCurve());
-            p0.add(segment.p0, 'y', -10, 10).onChange(() => this._updateCurve());
-            p0.add(segment.p0, 'z', -20, 20).onChange(() => this._updateCurve());
-
-            const h0 = segmentFolder.addFolder('Handle 1 (Red)');
-            h0.add(segment.h0, 'x', -20, 20).onChange(() => this._updateCurve());
-            h0.add(segment.h0, 'y', -10, 10).onChange(() => this._updateCurve());
-            h0.add(segment.h0, 'z', -20, 20).onChange(() => this._updateCurve());
-
-            const h1 = segmentFolder.addFolder('Handle 2 (Red)');
-            h1.add(segment.h1, 'x', -20, 20).onChange(() => this._updateCurve());
-            h1.add(segment.h1, 'y', -10, 10).onChange(() => this._updateCurve());
-            h1.add(segment.h1, 'z', -20, 20).onChange(() => this._updateCurve());
-
-            const p1 = segmentFolder.addFolder('End Point (Green)');
-            p1.add(segment.p1, 'x', -20, 20).onChange(() => this._updateCurve());
-            p1.add(segment.p1, 'y', -10, 10).onChange(() => this._updateCurve());
-            p1.add(segment.p1, 'z', -20, 20).onChange(() => this._updateCurve());
-        });
-
-        editorFolder.open();
-
-    }
 
     _updateCurve() {
         // 1. Update the curve path object
