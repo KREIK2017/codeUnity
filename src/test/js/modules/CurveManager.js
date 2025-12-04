@@ -25,15 +25,15 @@ export class CurveManager {
                 {
                     // Placeholder for the second segment
                     p0: new THREE.Vector3(1, 4, 11.5), // Anchor B (from previous segment)
-                    h0: new THREE.Vector3(12, 4, 12.5), // Handle for B
-                    h1: new THREE.Vector3(5.5, 3.5, 10.12), // Handle for C
-                    p1: new THREE.Vector3(7, 3.3, 3) // Anchor C
+                    h0: new THREE.Vector3(10.5, 4, 12.5), // Handle for B
+                    h1: new THREE.Vector3(7, 3.5, 10.12), // Handle for C
+                    p1: new THREE.Vector3(6.8, 3.5, 7) // Anchor C
                 },
                 {
                     // START of W-shape path (Segment 3)
-                    p0: new THREE.Vector3(7, 3.3, 3), // Anchor C (Point 3)
-                    h0: new THREE.Vector3(6.8, 3.1, 1.96),
-                    h1: new THREE.Vector3(5.8, 3.3, -0.36),
+                    p0: new THREE.Vector3(6.8, 3.5, 7), // Anchor C (Point 3)
+                    h0: new THREE.Vector3(7.5, 3, 1.96),
+                    h1: new THREE.Vector3(5.8, 3.2, -0.36),
                     p1: new THREE.Vector3(5.44, 3.3, -0.96) // Anchor W1
                 },
                 {

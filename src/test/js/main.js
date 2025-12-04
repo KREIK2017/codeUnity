@@ -99,7 +99,12 @@ const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerH
 // --- Platform Setup ---
 // This is the platform where the falling cube will land.
 const platformGeometry = new THREE.PlaneGeometry(2, 2);
-const platformMaterial = new THREE.MeshStandardMaterial({ color: 0xcccccc });
+const textureLoader = new THREE.TextureLoader();
+const landingTexture = textureLoader.load('textures/Landing.png');
+const platformMaterial = new THREE.MeshStandardMaterial({
+    map: landingTexture,
+    transparent: true
+});
 const platform = new THREE.Mesh(platformGeometry, platformMaterial);
 platform.rotation.x = -Math.PI / 2; // Rotate it to be flat.
 platform.position.set(-16.2, 36.9, 5);

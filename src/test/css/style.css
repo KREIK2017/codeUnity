@@ -313,7 +313,7 @@ canvas {
 .info-popup-header {
     display: flex;
     align-items: center;
-    gap: 15px;
+    gap: 30px;
 }
 
 .info-popup-container.visible {
@@ -378,7 +378,7 @@ canvas {
 }
 
 #info-popup-close:hover {
-    background-color: #e6b800;
+    background-color: #fddb52;
 }
 
 #info-popup-close:active {
