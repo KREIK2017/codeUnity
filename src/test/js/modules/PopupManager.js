@@ -2,8 +2,8 @@ import { Logger } from './Logger.js';
 
 const popupData = {
     0: {
-        title: 'Point 1',
-        subtitle: 'The end of your journey.',
+        title: 'The End',
+        subtitle: '',
         content: 'You’ve reached the end of the journey - but this is just the beginning of what we can create together. If something sparked your interest, feel free to reach out. We’re always excited to collaborate and turn ideas into reality.',
         image: 'textures/logos/React.png',
         rightImage: 'textures/popups/5End.png',
