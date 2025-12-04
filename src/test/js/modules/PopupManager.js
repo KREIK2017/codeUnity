@@ -6,6 +6,7 @@ const popupData = {
         subtitle: 'The end of your journey.',
         content: 'You’ve reached the end of the journey - but this is just the beginning of what we can create together. If something sparked your interest, feel free to reach out. We’re always excited to collaborate and turn ideas into reality.',
         image: 'textures/logos/React.png',
+        rightImage: 'textures/popups/5End.png',
         // features: ['Feature A', 'Feature B', 'Feature C']
     },
     1: {
@@ -13,6 +14,7 @@ const popupData = {
         subtitle: 'You succefully riched first point.',
         content: 'We create functional, user-friendly WordPress websites with thoughtful UI/UX. Full-cycle service from discovery and design to development, testing, launch, and ongoing support. Your site will be fast, responsive, and easy to manage.',
         image: 'textures/logos/blue-wordpress-logo-hd-picture-3.png',
+        rightImage: 'textures/popups/1Factory.png',
         // features: ['Feature A', 'Feature B', 'Feature C']
     },
     2: {
@@ -20,6 +22,7 @@ const popupData = {
         subtitle: 'Another stage has been completed.',
         content: 'Reliable hosting with 24/7 support. Speed optimization, security monitoring, backups, and updates handled for you. Optional add-ons include development support, plugin work, and detailed site health reports.',
         image: 'textures/logos/CSS3_logo_and_wordmark.svg.png',
+        rightImage: 'textures/popups/2lighthouse.png',
         // features: ['Feature A', 'Feature B', 'Feature C']
     },
     3: {
@@ -27,6 +30,7 @@ const popupData = {
         subtitle: 'A difficult stretch of road.',
         content: 'Photorealistic 3D renderings, virtual tours, and animations for residential, commercial, and multifamily projects. Ideal for architecture firms needing high-quality visualizations and product presentations.',
         image: 'textures/logos/HTML5_logo_and_wordmark.svg.png',
+        rightImage: 'textures/popups/3attraction.png',
         // features: ['Feature A', 'Feature B', 'Feature C']
     },
     4: {
@@ -34,6 +38,7 @@ const popupData = {
         subtitle: 'The halfway point of a difficult journey.',
         content: 'Fully optimized Shopify stores for effortless selling. Custom design, product management, SEO, smooth checkout, and 3D product visuals. Advanced features include marketing automation, social ads, loyalty programs, subscriptions, CRM integration, and custom apps/themes.',
         image: 'textures/logos/Shopify-Logo-PNG-HD.png',
+        rightImage: 'textures/popups/4Ferris_wheel.png',
         // features: ['Feature A', 'Feature B', 'Feature C']
     },
     5: {
@@ -41,6 +46,7 @@ const popupData = {
         subtitle: 'The test is almost complete.',
         content: 'End-to-end web and mobile app development, including UI/UX design, native and hybrid apps, complex integrations (SaaS, CRM, ERP, SCADA), and managed hosting. Built with modern technologies like Node.js, PHP, React, Vue, Angular, Golang, and Rust for seamless, scalable solutions.',
         image: 'textures/logos/React.png',
+        rightImage: 'textures/image.png',
         // features: ['Feature A', 'Feature B', 'Feature C']
     },
 };
@@ -87,7 +93,7 @@ class PopupManager {
             this.subtitleElement.textContent = data.subtitle; // New
             this.contentElement.textContent = data.content;
             this.logoElement.src = data.image;
-            this.sceneImageElement.src = 'textures/image.png'; // Set the static scene image
+            this.sceneImageElement.src = data.rightImage; // Set the static scene image
 
             // Populate features list
             /* this.featuresList.innerHTML = ''; // Clear previous features
