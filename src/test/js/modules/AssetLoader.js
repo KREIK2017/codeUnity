@@ -7,13 +7,6 @@ import { LowPolyWater } from '../LowPolyWater.js';
 import modelUrl from '../../UnityCode_Island02_ktx2.glb';
 import fbxModelUrl from '../../R01_Animate_S.fbx';
 
-import wordpressLogoUrl from '../../textures/logos/blue-wordpress-logo-hd-picture-3.png';
-import cssLogoUrl from '../../textures/logos/CSS3_logo_and_wordmark.svg.png';
-import htmlLogoUrl from '../../textures/logos/HTML5_logo_and_wordmark.svg.png';
-import shopifyLogoUrl from '../../textures/logos/Shopify-Logo-PNG-HD.png';
-import androidLogoUrl from '../../textures/logos/icons8-android-100.png';
-import iosLogoUrl from '../../textures/logos/icons8-apple-intelligence-100.png';
-
 export class AssetLoader {
 
     constructor(scene, renderer, loadingManager) {
